@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Understanding y = mx + b</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<style>
+  :root {
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --text: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(180deg, #eef4ff, #f4f7fb 300px);
+    color: var(--text);
+    padding: 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  header h1 {
+    font-size: 2.2em;
+    margin-bottom: 5px;
+    color: #2563eb;
+  }
+  header p {
+    font-size: 1.15em;
+    color: #4b5563;
+    max-width: 700px;
+    margin: 10px auto;
+  }
+  .formula-box {
+    display: inline-block;
+    background: #fff;
+    border: 3px solid var(--blue);
+    border-radius: 16px;
+    padding: 12px 28px;
+    font-size: 1.6em;
+    font-weight: bold;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+  .formula-box .m { color: var(--purple); }
+  .formula-box .b { color: var(--green); }
+  .formula-box .x { color: var(--orange); }
+
+  section {
+    max-width: 1100px;
+    margin: 0 auto 50px auto;
+  }
+  section h2 {
+    font-size: 1.7em;
+    border-left: 6px solid var(--blue);
+    padding-left: 12px;
+    color: #1e3a8a;
+  }
+  .legend-note {
+    background: #fff7e6;
+    border: 1px solid #f4d999;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 25px;
+    font-size: 0.98em;
+  }
+  .example-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+  .example-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.3fr;
+    gap: 20px;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .example-card { grid-template-columns: 1fr; }
+  }
+  .example-title {
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #1e40af;
+  }
+  .example-desc {
+    font-size: 0.95em;
+    color: #4b5563;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: #fafcff;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    text-align: center;
+    padding: 8px 6px;
+    font-size: 0.95em;
+  }
+  th {
+    background: var(--blue);
+    color: white;
+  }
+  tr:nth-child(even) td { background: #eef4ff; }
+  td.coord-cell {
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, transform 0.1s;
+  }
+  td.coord-cell:hover {
+    background: #fde68a !important;
+  }
+  td.coord-cell.highlighted {
+    background: #ef4444 !important;
+    color: white;
+    font-weight: bold;
+    transform: scale(1.08);
+  }
+  canvas {
+    max-width: 100%;
+  }
+  /* Charts use a taller-than-wide aspect ratio so x/y units render at the same
+     pixel size (see AXIS_ASPECT_RATIO in the script). Chart.js sizes the canvas
+     from this wrapper's width, so capping the wrapper (rather than the canvas
+     itself) keeps the resulting height reasonable and avoids fighting Chart.js's
+     own inline sizing. */
+  .chart-wrap {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .interactive-box {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    background: #eef4ff;
+    padding: 20px;
+    border-radius: 14px;
+  }
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .control-group label {
+    font-weight: bold;
+    font-size: 1.05em;
+  }
+  .control-group input {
+    width: 100px;
+    padding: 8px;
+    font-size: 1.1em;
+    text-align: center;
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+  }
+  #okBtn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.15em;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  #okBtn:hover { background: #2563eb; transform: translateY(-2px); }
+  #okBtn:active { transform: translateY(0); }
+
+  .result-area {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 25px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .result-area { grid-template-columns: 1fr; }
+  }
+  .zoom-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .zoom-controls button {
+    background: white;
+    border: 2px solid var(--blue);
+    color: var(--blue);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .zoom-controls button:hover { background: var(--blue); color: white; }
+  .zoom-hint {
+    font-size: 0.85em;
+    color: #6b7280;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  #currentFormula {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #1e40af;
+  }
+  #errorMsg {
+    color: #dc2626;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px;
+    min-height: 1.2em;
+  }
+  .hint {
+    font-size: 0.9em;
+    color: #6b7280;
+    text-align: center;
+    margin-top: -10px;
+    margin-bottom: 15px;
+  }
+  footer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.85em;
+    margin-top: 40px;
+  }
+
+  .lang-switch {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+  }
+  [dir="rtl"] .lang-switch {
+    right: auto;
+    left: 15px;
+  }
+  .lang-switch button {
+    background: white;
+    border: 2px solid var(--blue);
+    color: var(--blue);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.95em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    transition: background 0.2s, color 0.2s;
+  }
+  .lang-switch button:hover {
+    background: var(--blue);
+    color: white;
+  }
+  [dir="rtl"] section h2 {
+    border-left: none;
+    border-right: 6px solid var(--blue);
+    padding-left: 0;
+    padding-right: 12px;
+  }
+  .formula-box {
+    direction: ltr;
+  }
+</style>
+</head>
+<body>
+
+<div class="lang-switch">
+  <button id="langToggleBtn" type="button">עברית</button>
+</div>
+
+<header>
+  <h1 id="mainHeading">Linear Functions: y = mx + b</h1>
+  <p id="introText">A "linear function" is just a math rule that draws a <strong>straight line</strong>.
+     <strong>m</strong> tells you how steep the line is (the <em>slope</em>),
+     and <strong>b</strong> tells you where the line crosses the y-axis (the <em>y-intercept</em>).</p>
+  <div class="formula-box"><span class="y">y</span> = <span class="m">m</span><span class="x">x</span> + <span class="b">b</span></div>
+</header>
+
+<section id="section1">
+  <h2 id="section1Title">Section 1: Examples</h2>
+  <div class="legend-note" id="tipText">
+    💡 <strong>Tip:</strong> To make the table, pick some x values (like -2, -1, 0, 1, 2) and plug each one into the formula to get y.
+    For example, if y = 2x - 5, then when x = 3: y = 2(3) - 5 = 1.
+  </div>
+  <div class="example-grid" id="examplesGrid"></div>
+</section>
+
+<section id="section2">
+  <h2 id="section2Title">Section 2: Try It Yourself!</h2>
+  <div class="interactive-box">
+    <p style="text-align:center;" id="interactiveIntro">Pick your own values for <strong>m</strong> and <strong>b</strong>, then hit OK to see the table and graph!</p>
+    <div class="controls">
+      <div class="control-group">
+        <label for="mInput" id="mLabel">m (slope)</label>
+        <input type="number" id="mInput" value="2" step="any">
+      </div>
+      <div class="control-group">
+        <label for="bInput" id="bLabel">b (y-intercept)</label>
+        <input type="number" id="bInput" value="-5" step="any">
+      </div>
+      <button id="okBtn">OK ✓</button>
+    </div>
+    <div id="errorMsg"></div>
+    <div id="currentFormula"></div>
+    <div class="result-area" id="resultArea" style="display:none;">
+      <table id="interactiveTable" dir="ltr"></table>
+      <div class="chart-wrap">
+        <div class="zoom-controls">
+          <button id="zoomInBtn" type="button" title="Zoom in">+</button>
+          <button id="zoomOutBtn" type="button" title="Zoom out">&minus;</button>
+          <button id="resetZoomBtn" type="button" title="Reset zoom">⤾</button>
+        </div>
+        <p class="zoom-hint" id="zoomHint">Scroll, pinch, or drag to zoom/pan &mdash; handy for big values like m = 1000</p>
+        <canvas id="interactiveChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="footerText">Made to help you master y = mx + b 📈</footer>
+
+<script>
+const X_VALUES = [-4, -3, -2, -1, 0, 1, 2, 3, 4];
+const colors = ['#3b82f6', '#ef4444', '#10b981', '#8b5cf6'];
+
+// Shared axis scale so lines with different slopes stay visually comparable across charts.
+const X_AXIS_RANGE = { min: -10, max: 10 };
+const Y_AXIS_RANGE = { min: -16, max: 12 };
+
+// Chart.js draws the canvas at width = aspectRatio * height. Matching that ratio to the
+// ratio of the axis spans keeps one x-unit and one y-unit the same number of pixels,
+// so a line's on-screen steepness actually reflects its slope instead of being stretched.
+const AXIS_ASPECT_RATIO = (X_AXIS_RANGE.max - X_AXIS_RANGE.min) / (Y_AXIS_RANGE.max - Y_AXIS_RANGE.min);
+
+// ---------- Translations ----------
+const translations = {
+  en: {
+    pageTitle: 'Understanding y = mx + b',
+    mainHeading: 'Linear Functions: y = mx + b',
+    introText: 'A "linear function" is just a math rule that draws a <strong>straight line</strong>. ' +
+                '<strong>m</strong> tells you how steep the line is (the <em>slope</em>), ' +
+                'and <strong>b</strong> tells you where the line crosses the y-axis (the <em>y-intercept</em>).',
+    section1Title: 'Section 1: Examples',
+    tipText: '💡 <strong>Tip:</strong> To make the table, pick some x values (like -2, -1, 0, 1, 2) and plug each one into the formula to get y. ' +
+              'For example, if y = 2x - 5, then when x = 3: y = 2(3) - 5 = 1.',
+    section2Title: 'Section 2: Try It Yourself!',
+    interactiveIntro: 'Pick your own values for <strong>m</strong> and <strong>b</strong>, then hit OK to see the table and graph!',
+    mLabel: 'm (slope)',
+    bLabel: 'b (y-intercept)',
+    okBtn: 'OK ✓',
+    errorMsg: 'Please enter valid numbers for both m and b.',
+    footerText: 'Made to help you master y = mx + b 📈',
+    lineLegend: 'Line',
+    pointsLegend: 'Points from table',
+    langToggleBtn: 'עברית',
+    slopeDesc: (m) => `Slope (m) = ${m} &rarr; ${m > 0 ? 'line goes up' : (m < 0 ? 'line goes down' : 'flat line')}`,
+    interceptDesc: (b) => `y-intercept (b) = ${b} &rarr; crosses y-axis at (0, ${b})`,
+    zoomInBtn: 'Zoom in',
+    zoomOutBtn: 'Zoom out',
+    resetZoomBtn: 'Reset zoom',
+    zoomHint: 'Scroll, pinch, or drag to zoom/pan &mdash; handy for big values like m = 1000'
+  },
+  he: {
+    pageTitle: 'הבנת y = mx + b',
+    mainHeading: 'פונקציות ליניאריות: y = mx + b',
+    introText: '"פונקציה ליניארית" היא פשוט חוק מתמטי שמצייר <strong>קו ישר</strong>. ' +
+                '<strong>m</strong> אומר לך כמה הישר תלול (ה<em>שיפוע</em>), ' +
+                'ו-<strong>b</strong> אומר לך איפה הישר חוצה את ציר ה-y (<em>נקודת החיתוך</em>).',
+    section1Title: 'חלק 1: דוגמאות',
+    tipText: '💡 <strong>טיפ:</strong> כדי לבנות את הטבלה, בחרו כמה ערכי x (למשל -2, -1, 0, 1, 2) והציבו כל אחד מהם בנוסחה כדי לקבל את y. ' +
+              'לדוגמה, אם y = 2x - 5, אז כאשר x = 3: y = 2(3) - 5 = 1.',
+    section2Title: 'חלק 2: נסו בעצמכם!',
+    interactiveIntro: 'בחרו ערכים משלכם ל-<strong>m</strong> ול-<strong>b</strong>, ואז לחצו על אישור כדי לראות את הטבלה והגרף!',
+    mLabel: 'm (שיפוע)',
+    bLabel: 'b (נקודת חיתוך)',
+    okBtn: 'אישור ✓',
+    errorMsg: 'נא להזין מספרים תקינים עבור m ו-b.',
+    footerText: 'נוצר כדי לעזור לכם לשלוט ב-y = mx + b 📈',
+    lineLegend: 'הישר',
+    pointsLegend: 'נקודות מהטבלה',
+    langToggleBtn: 'English',
+    slopeDesc: (m) => `שיפוע (m) = ${m} &larr; ${m > 0 ? 'הישר עולה' : (m < 0 ? 'הישר יורד' : 'קו אופקי')}`,
+    interceptDesc: (b) => `נקודת חיתוך (b) = ${b} &larr; חוצה את ציר ה-y בנקודה (0, ${b})`,
+    zoomInBtn: 'התקרבות',
+    zoomOutBtn: 'התרחקות',
+    resetZoomBtn: 'איפוס זום',
+    zoomHint: 'גללו, צבטו או גררו כדי להתקרב/להתרחק ולהזיז את התצוגה &mdash; שימושי לערכים גדולים כמו m = 1000'
+  }
+};
+
+let currentLang = 'en';
+
+function computeTable(m, b) {
+  return X_VALUES.map(x => ({ x, y: m * x + b }));
+}
+
+function buildTableHTML(data) {
+  return '<tr><th>x</th>' + data.map((p, i) => `<td class="coord-cell" data-index="${i}">${p.x}</td>`).join('') + '</tr>' +
+         '<tr><th>y</th>' + data.map((p, i) => `<td class="coord-cell" data-index="${i}">${p.y}</td>`).join('') + '</tr>';
+}
+
+// Wires hover/click on a table's coordinate cells to highlight the matching point on its chart.
+function attachTableHighlight(tableEl, getChart, data) {
+  let selectedIndex = null;
+
+  function applyHighlight(activeIndex) {
+    const chart = getChart();
+    if (!chart) return;
+    const pointsDataset = chart.data.datasets[1];
+    pointsDataset.pointRadius = data.map((_, i) => i === activeIndex ? 10 : 6);
+    pointsDataset.pointBackgroundColor = data.map((_, i) => i === activeIndex ? '#ef4444' : pointsDataset._baseColor);
+    pointsDataset.pointBorderColor = data.map((_, i) => i === activeIndex ? '#b91c1c' : pointsDataset._baseColor);
+    chart.update();
+
+    tableEl.querySelectorAll('td.coord-cell').forEach(td => {
+      td.classList.toggle('highlighted', Number(td.dataset.index) === activeIndex);
+    });
+  }
+
+  tableEl.querySelectorAll('td.coord-cell').forEach(td => {
+    const index = Number(td.dataset.index);
+    td.addEventListener('mouseenter', () => applyHighlight(index));
+    td.addEventListener('mouseleave', () => applyHighlight(selectedIndex));
+    td.addEventListener('click', () => {
+      selectedIndex = (selectedIndex === index) ? null : index;
+      applyHighlight(selectedIndex);
+    });
+  });
+}
+
+function formatFn(m, b) {
+  const sign = b < 0 ? '-' : '+';
+  return `y = ${m}x ${sign} ${Math.abs(b)}`;
+}
+
+const examples = [
+  { m: 2, b: -5, color: colors[0] },
+  { m: -1, b: 3, color: colors[1] },
+  { m: 0.5, b: 1, color: colors[2] },
+  { m: -3, b: -2, color: colors[3] }
+];
+
+const examplesGrid = document.getElementById('examplesGrid');
+const exampleRefs = [];
+
+examples.forEach((ex, i) => {
+  const data = computeTable(ex.m, ex.b);
+  const card = document.createElement('div');
+  card.className = 'example-card';
+
+  const titleCol = document.createElement('div');
+  const descEl = document.createElement('div');
+  descEl.className = 'example-desc';
+  titleCol.innerHTML = `<div class="example-title">${formatFn(ex.m, ex.b)}</div>`;
+  titleCol.appendChild(descEl);
+
+  const tableCol = document.createElement('table');
+  tableCol.setAttribute('dir', 'ltr');
+  tableCol.innerHTML = buildTableHTML(data);
+
+  const chartCol = document.createElement('canvas');
+  chartCol.id = 'exampleChart' + i;
+  const chartWrap = document.createElement('div');
+  chartWrap.className = 'chart-wrap';
+  chartWrap.appendChild(chartCol);
+
+  card.appendChild(titleCol);
+  card.appendChild(tableCol);
+  card.appendChild(chartWrap);
+  examplesGrid.appendChild(card);
+
+  const exampleChart = new Chart(chartCol.getContext('2d'), {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'Line',
+          data: data,
+          showLine: true,
+          borderColor: ex.color,
+          backgroundColor: ex.color,
+          pointRadius: 0,
+          borderWidth: 2,
+          tension: 0
+        },
+        {
+          label: 'Points from table',
+          data: data,
+          showLine: false,
+          backgroundColor: ex.color,
+          _baseColor: ex.color,
+          pointRadius: 6,
+          pointHoverRadius: 8
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      aspectRatio: AXIS_ASPECT_RATIO,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: formatFn(ex.m, ex.b) }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          min: X_AXIS_RANGE.min,
+          max: X_AXIS_RANGE.max,
+          position: { y: 0 },
+          title: { display: true, text: 'x', align: 'end' },
+          ticks: { z: 1 },
+          grid: { color: (ctx) => ctx.tick.value === 0 ? '#94a3b8' : '#e2e8f0' }
+        },
+        y: {
+          min: Y_AXIS_RANGE.min,
+          max: Y_AXIS_RANGE.max,
+          position: { x: 0 },
+          title: { display: true, text: 'y', align: 'end' },
+          ticks: { z: 1 },
+          grid: { color: (ctx) => ctx.tick.value === 0 ? '#94a3b8' : '#e2e8f0' }
+        }
+      }
+    }
+  });
+
+  attachTableHighlight(tableCol, () => exampleChart, data);
+  exampleRefs.push({ ex, descEl, chart: exampleChart });
+});
+
+// ---------- Interactive Section ----------
+let interactiveChart = null;
+
+function renderInteractive(m, b) {
+  const data = computeTable(m, b);
+
+  document.getElementById('currentFormula').textContent = formatFn(m, b);
+  document.getElementById('interactiveTable').innerHTML = buildTableHTML(data);
+  document.getElementById('resultArea').style.display = 'grid';
+
+  const ctx = document.getElementById('interactiveChart').getContext('2d');
+  if (interactiveChart) interactiveChart.destroy();
+
+  interactiveChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: translations[currentLang].lineLegend,
+          data: data,
+          showLine: true,
+          borderColor: '#2563eb',
+          backgroundColor: '#2563eb',
+          pointRadius: 0,
+          borderWidth: 3
+        },
+        {
+          label: translations[currentLang].pointsLegend,
+          data: data,
+          showLine: false,
+          backgroundColor: '#f59e0b',
+          _baseColor: '#f59e0b',
+          pointRadius: 7,
+          pointHoverRadius: 9
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      aspectRatio: AXIS_ASPECT_RATIO,
+      plugins: {
+        legend: { display: true, position: 'bottom' },
+        title: { display: true, text: formatFn(m, b), font: { size: 16 } },
+        zoom: {
+          pan: { enabled: true, mode: 'xy' },
+          zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' },
+          limits: { x: { min: -1e9, max: 1e9 }, y: { min: -1e9, max: 1e9 } }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          min: X_AXIS_RANGE.min,
+          max: X_AXIS_RANGE.max,
+          position: { y: 0 },
+          title: { display: true, text: 'x', align: 'end' },
+          ticks: { z: 1 },
+          grid: { color: (ctx) => ctx.tick.value === 0 ? '#94a3b8' : '#e2e8f0' }
+        },
+        y: {
+          min: Y_AXIS_RANGE.min,
+          max: Y_AXIS_RANGE.max,
+          position: { x: 0 },
+          title: { display: true, text: 'y', align: 'end' },
+          ticks: { z: 1 },
+          grid: { color: (ctx) => ctx.tick.value === 0 ? '#94a3b8' : '#e2e8f0' }
+        }
+      }
+    }
+  });
+
+  attachTableHighlight(document.getElementById('interactiveTable'), () => interactiveChart, data);
+}
+
+document.getElementById('okBtn').addEventListener('click', () => {
+  const mVal = document.getElementById('mInput').value.trim();
+  const bVal = document.getElementById('bInput').value.trim();
+  const errorMsg = document.getElementById('errorMsg');
+
+  const m = parseFloat(mVal);
+  const b = parseFloat(bVal);
+
+  if (mVal === '' || bVal === '' || isNaN(m) || isNaN(b)) {
+    errorMsg.textContent = translations[currentLang].errorMsg;
+    document.getElementById('resultArea').style.display = 'none';
+    document.getElementById('currentFormula').textContent = '';
+    return;
+  }
+
+  errorMsg.textContent = '';
+  renderInteractive(m, b);
+});
+
+document.getElementById('zoomInBtn').addEventListener('click', () => { if (interactiveChart) interactiveChart.zoom(1.5); });
+document.getElementById('zoomOutBtn').addEventListener('click', () => { if (interactiveChart) interactiveChart.zoom(1 / 1.5); });
+document.getElementById('resetZoomBtn').addEventListener('click', () => { if (interactiveChart) interactiveChart.resetZoom(); });
+
+// ---------- Language switching ----------
+function applyLanguage(lang) {
+  currentLang = lang;
+  const t = translations[lang];
+
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.title = t.pageTitle;
+
+  document.getElementById('mainHeading').textContent = t.mainHeading;
+  document.getElementById('introText').innerHTML = t.introText;
+  document.getElementById('section1Title').textContent = t.section1Title;
+  document.getElementById('tipText').innerHTML = t.tipText;
+  document.getElementById('section2Title').textContent = t.section2Title;
+  document.getElementById('interactiveIntro').innerHTML = t.interactiveIntro;
+  document.getElementById('mLabel').textContent = t.mLabel;
+  document.getElementById('bLabel').textContent = t.bLabel;
+  document.getElementById('okBtn').textContent = t.okBtn;
+  document.getElementById('footerText').textContent = t.footerText;
+  document.getElementById('langToggleBtn').textContent = t.langToggleBtn;
+  document.getElementById('zoomInBtn').title = t.zoomInBtn;
+  document.getElementById('zoomOutBtn').title = t.zoomOutBtn;
+  document.getElementById('resetZoomBtn').title = t.resetZoomBtn;
+  document.getElementById('zoomHint').innerHTML = t.zoomHint;
+
+  const errorMsgEl = document.getElementById('errorMsg');
+  if (errorMsgEl.textContent) errorMsgEl.textContent = t.errorMsg;
+
+  exampleRefs.forEach(ref => {
+    ref.descEl.innerHTML = `${t.slopeDesc(ref.ex.m)}<br>${t.interceptDesc(ref.ex.b)}`;
+    ref.chart.data.datasets[0].label = t.lineLegend;
+    ref.chart.data.datasets[1].label = t.pointsLegend;
+    ref.chart.update();
+  });
+
+  if (interactiveChart) {
+    interactiveChart.data.datasets[0].label = t.lineLegend;
+    interactiveChart.data.datasets[1].label = t.pointsLegend;
+    interactiveChart.update();
+  }
+}
+
+document.getElementById('langToggleBtn').addEventListener('click', () => {
+  applyLanguage(currentLang === 'en' ? 'he' : 'en');
+});
+
+// Render an initial example on load
+renderInteractive(2, -5);
+applyLanguage('en');
+</script>
+
+</body>
+</html>

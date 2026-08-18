@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Topics for Students</title>
+<style>
+  :root {
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --text: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(180deg, #eef4ff, #f4f7fb 300px);
+    color: var(--text);
+    padding: 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  header h1 {
+    font-size: 2.2em;
+    margin-bottom: 5px;
+    color: #2563eb;
+  }
+  header p {
+    font-size: 1.15em;
+    color: #4b5563;
+    max-width: 700px;
+    margin: 10px auto;
+  }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+  }
+  .topic-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    border: 3px solid transparent;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .topic-card:hover {
+    border-color: var(--blue);
+    transform: translateY(-3px);
+  }
+  .topic-card h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.3em;
+    color: #1e40af;
+  }
+  .topic-card p {
+    margin: 0;
+    font-size: 0.95em;
+    color: #4b5563;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Math Topics</h1>
+  <p>Pick a topic below to explore interactive examples and playgrounds.</p>
+</header>
+
+<main>
+  <div class="topic-grid">
+    <a class="topic-card" href="linear_functions.html">
+      <h2>Linear Functions</h2>
+      <p>Understand y = mx + b through worked examples and an interactive graph.</p>
+    </a>
+  </div>
+</main>
+
+</body>
+</html>
