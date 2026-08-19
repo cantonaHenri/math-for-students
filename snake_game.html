@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Game</title>
+<style>
+  :root {
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --text: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(180deg, #eef4ff, #f4f7fb 300px);
+    color: var(--text);
+    padding: 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  header h1 {
+    font-size: 2.2em;
+    margin-bottom: 5px;
+    color: #2563eb;
+  }
+  header p {
+    font-size: 1.15em;
+    color: #4b5563;
+    max-width: 700px;
+    margin: 10px auto;
+  }
+  a.back-link {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.95em;
+  }
+  a.back-link:hover { text-decoration: underline; }
+
+  main {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+  .scoreboard {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 16px;
+    font-size: 1.1em;
+  }
+  .scoreboard span { font-weight: bold; }
+  #score { color: var(--green); }
+  #best { color: var(--purple); }
+
+  .board-wrap {
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+  canvas#board {
+    background: #0f172a;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    max-width: 100%;
+    touch-action: none;
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    color: #fff;
+    background: rgba(15, 23, 42, 0.72);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .overlay.hidden { display: none; }
+  .overlay h2 { margin: 0; font-size: 1.4em; }
+  .overlay p { margin: 0; color: #cbd5e1; font-size: 0.95em; }
+
+  .actions {
+    text-align: center;
+    margin-top: 20px;
+  }
+  button.main-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 1.05em;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(59,130,246,0.35);
+  }
+  button.main-btn:hover { background: #2563eb; }
+
+  .dpad {
+    display: none;
+    grid-template-columns: 56px 56px 56px;
+    grid-template-rows: 56px 56px 56px;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 18px;
+  }
+  .dpad button {
+    border: 2px solid #d1d5db;
+    background: #fff;
+    border-radius: 10px;
+    font-size: 1.3em;
+    cursor: pointer;
+  }
+  .dpad button:active { border-color: var(--blue); background: #eef4ff; }
+  #dUp { grid-column: 2; grid-row: 1; }
+  #dLeft { grid-column: 1; grid-row: 2; }
+  #dRight { grid-column: 3; grid-row: 2; }
+  #dDown { grid-column: 2; grid-row: 3; }
+
+  .hint {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.9em;
+    margin-top: 14px;
+  }
+
+  @media (pointer: coarse) {
+    .dpad { display: grid; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <a class="back-link" href="index.html">&larr; Back to Math Topics</a>
+  <header>
+    <h1>🐍 Snake</h1>
+    <p>A quick arcade break. Eat the dots, don't hit yourself or the wall.</p>
+  </header>
+
+  <div class="card">
+    <div class="scoreboard">
+      <div>Score: <span id="score">0</span></div>
+      <div>Best: <span id="best">0</span></div>
+    </div>
+
+    <div class="board-wrap">
+      <canvas id="board" width="400" height="400"></canvas>
+      <div class="overlay" id="overlay">
+        <h2 id="overlayTitle">Ready?</h2>
+        <p id="overlayText">Use arrow keys / WASD, or the buttons below on touch devices.</p>
+        <button class="main-btn" id="startBtn">Start game</button>
+      </div>
+    </div>
+
+    <div class="dpad">
+      <button id="dUp">&uarr;</button>
+      <button id="dLeft">&larr;</button>
+      <button id="dRight">&rarr;</button>
+      <button id="dDown">&darr;</button>
+    </div>
+
+    <div class="hint">Arrow keys or WASD to move &middot; Space to pause</div>
+  </div>
+</main>
+
+<script>
+  const GRID = 20;
+  const CELL = 20;
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+
+  const scoreEl = document.getElementById('score');
+  const bestEl = document.getElementById('best');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayText = document.getElementById('overlayText');
+  const startBtn = document.getElementById('startBtn');
+
+  const BEST_KEY = 'snakeGameBestScore';
+
+  function loadBest() {
+    try { return Number(localStorage.getItem(BEST_KEY) || 0); }
+    catch (e) { return 0; }
+  }
+  function saveBest(value) {
+    try { localStorage.setItem(BEST_KEY, value); }
+    catch (e) { /* storage unavailable, ignore */ }
+  }
+
+  let best = loadBest();
+  bestEl.textContent = best;
+
+  let snake, dir, nextDir, food, score, running, paused, tickTimer;
+  const SPEED_MS = 110;
+
+  function randCell(excludeCells) {
+    let cell;
+    do {
+      cell = {
+        x: Math.floor(Math.random() * GRID),
+        y: Math.floor(Math.random() * GRID)
+      };
+    } while (excludeCells.some(c => c.x === cell.x && c.y === cell.y));
+    return cell;
+  }
+
+  function resetState() {
+    snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+    dir = { x: 1, y: 0 };
+    nextDir = { x: 1, y: 0 };
+    food = randCell(snake);
+    score = 0;
+    scoreEl.textContent = score;
+    paused = false;
+  }
+
+  function draw() {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(food.x * CELL + 2, food.y * CELL + 2, CELL - 4, CELL - 4);
+
+    snake.forEach((seg, i) => {
+      ctx.fillStyle = i === 0 ? '#10b981' : '#34d399';
+      ctx.fillRect(seg.x * CELL + 1, seg.y * CELL + 1, CELL - 2, CELL - 2);
+    });
+  }
+
+  function step() {
+    if (paused) return;
+    dir = nextDir;
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+    const hitsWall = head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID;
+    const hitsSelf = snake.some(seg => seg.x === head.x && seg.y === head.y);
+    if (hitsWall || hitsSelf) {
+      gameOver();
+      return;
+    }
+
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score++;
+      scoreEl.textContent = score;
+      food = randCell(snake);
+    } else {
+      snake.pop();
+    }
+
+    draw();
+  }
+
+  function setDir(x, y) {
+    if (!running) return;
+    if (dir.x === -x && dir.y === -y) return;
+    nextDir = { x, y };
+  }
+
+  function startGame() {
+    resetState();
+    running = true;
+    overlay.classList.add('hidden');
+    draw();
+    if (tickTimer) clearInterval(tickTimer);
+    tickTimer = setInterval(step, SPEED_MS);
+  }
+
+  function gameOver() {
+    running = false;
+    clearInterval(tickTimer);
+    if (score > best) {
+      best = score;
+      saveBest(best);
+      bestEl.textContent = best;
+    }
+    overlayTitle.textContent = 'Game over!';
+    overlayText.textContent = `Score: ${score}. Give it another go?`;
+    startBtn.textContent = 'Play again';
+    overlay.classList.remove('hidden');
+  }
+
+  function togglePause() {
+    if (!running) return;
+    paused = !paused;
+    overlay.classList.toggle('hidden', !paused);
+    overlayTitle.textContent = 'Paused';
+    overlayText.textContent = 'Press Space or click resume to continue.';
+    startBtn.textContent = 'Resume';
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (running && paused) {
+      paused = false;
+      overlay.classList.add('hidden');
+    } else {
+      startGame();
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    switch (e.key) {
+      case 'ArrowUp': case 'w': case 'W': setDir(0, -1); e.preventDefault(); break;
+      case 'ArrowDown': case 's': case 'S': setDir(0, 1); e.preventDefault(); break;
+      case 'ArrowLeft': case 'a': case 'A': setDir(-1, 0); e.preventDefault(); break;
+      case 'ArrowRight': case 'd': case 'D': setDir(1, 0); e.preventDefault(); break;
+      case ' ': togglePause(); e.preventDefault(); break;
+    }
+  });
+
+  document.getElementById('dUp').addEventListener('click', () => setDir(0, -1));
+  document.getElementById('dDown').addEventListener('click', () => setDir(0, 1));
+  document.getElementById('dLeft').addEventListener('click', () => setDir(-1, 0));
+  document.getElementById('dRight').addEventListener('click', () => setDir(1, 0));
+
+  draw();
+</script>
+
+</body>
+</html>
