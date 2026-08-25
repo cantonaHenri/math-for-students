@@ -11,6 +11,7 @@
     --green: #10b981;
     --orange: #f59e0b;
     --red: #ef4444;
+    --teal: #0d9488;
     --bg: #f4f7fb;
     --card: #ffffff;
     --text: #1f2937;
@@ -105,11 +106,12 @@
     min-width: 320px;
   }
 
-  #diagramSvg { width: 100%; height: auto; display: block; direction: ltr; }
+  .diagram-svg { width: 100%; height: auto; display: block; direction: ltr; }
   .seg { stroke: #334155; stroke-width: 2.5; fill: none; }
   .tick { stroke: #334155; stroke-width: 2; }
   .tri { fill: none; stroke: none; pointer-events: none; }
   .angle-arc { fill: none; stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 3,3; }
+  .right-angle-mark { fill: none; stroke: #94a3b8; stroke-width: 1.5; }
   .vertex-dot { fill: #1f2937; }
   .vertex-label { font-size: 20px; font-weight: bold; fill: #1f2937; }
   .e-label { font-size: 18px; font-weight: bold; fill: #1f2937; }
@@ -119,6 +121,31 @@
   .hl-3 { stroke: var(--purple) !important; stroke-width: 3 !important; stroke-dasharray: none !important; }
   .hl-4 { fill: var(--green) !important; fill-opacity: 0.18; stroke: var(--green) !important; stroke-width: 3 !important; }
   .hl-5 { stroke: var(--red) !important; stroke-width: 4 !important; }
+  .hl-6 { stroke: var(--teal) !important; stroke-width: 3 !important; stroke-dasharray: none !important; }
+
+  .problem-tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    margin: 0 auto 20px auto;
+  }
+  .tab-btn {
+    background: white;
+    color: #4b5563;
+    border: 2px solid #d1d5db;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+  }
 
   .proof-controls {
     display: flex;
@@ -188,6 +215,7 @@
   .proof-line.hl-3 { border-color: var(--purple); background: #f5f3ff; }
   .proof-line.hl-4 { border-color: var(--green); background: #ecfdf5; }
   .proof-line.hl-5 { border-color: var(--red); background: #fef2f2; }
+  .proof-line.hl-6 { border-color: var(--teal); background: #f0fdfa; }
   .line-num { font-weight: bold; color: #6b7280; }
   .line-statement { font-weight: bold; direction: ltr; unicode-bidi: isolate; }
   .line-reason { color: #4b5563; font-size: 0.95em; }
@@ -245,15 +273,20 @@
   <h1 id="mainHeading">How to Write a Geometric Proof</h1>
   <p id="introText">A geometric proof is built one logical step at a time: each line is either something you were
     <strong>given</strong>, or something that follows from a <strong>rule</strong> you already know.
-    Work through the example below one line at a time to see how a full proof comes together.</p>
+    Work through the examples below one line at a time to see how a full proof comes together.</p>
 </header>
+
+<div class="problem-tabs">
+  <button id="tab1Btn" class="tab-btn active" type="button">Example 1: Crossing Segments</button>
+  <button id="tab2Btn" class="tab-btn" type="button">Example 2: Isosceles Triangle</button>
+</div>
 
 <section id="section1">
   <h2 id="problemHeading">The Problem</h2>
-  <div class="given-prove-box">
+  <div class="given-prove-box" id="givenProveBox1">
     <div class="row">
-      <span class="row-label" id="givenLabel">Given:</span>
-      <span id="givenIntro">Segments AB and CD intersect at point E.</span>
+      <span class="row-label" id="givenLabel1">Given:</span>
+      <span id="givenIntro1">Segments AB and CD intersect at point E.</span>
     </div>
     <div class="row" dir="ltr">
       <span class="row-label"></span>
@@ -261,12 +294,26 @@
       <span class="math">CE = BE</span>
     </div>
     <div class="row">
-      <span class="row-label" id="proveLabel">Prove:</span>
+      <span class="row-label" id="proveLabel1">Prove:</span>
       <span class="math">(a) &Delta;AEC &cong; &Delta;DEB</span>
     </div>
     <div class="row">
       <span class="row-label"></span>
       <span class="math">(b) AC = DB</span>
+    </div>
+  </div>
+  <div class="given-prove-box" id="givenProveBox2" style="display:none;">
+    <div class="row">
+      <span class="row-label" id="givenLabel2">Given:</span>
+      <span id="givenIntro2">Triangle ABC is isosceles with AB = AC. D is the midpoint of side BC.</span>
+    </div>
+    <div class="row">
+      <span class="row-label" id="proveLabel2">Prove:</span>
+      <span class="math">(a) &Delta;ABD &cong; &Delta;ACD</span>
+    </div>
+    <div class="row">
+      <span class="row-label"></span>
+      <span class="math">(b) AD &perp; BC</span>
     </div>
   </div>
 </section>
@@ -275,7 +322,7 @@
   <h2 id="proofHeading">Proof</h2>
   <div class="proof-layout">
     <div class="diagram-card">
-      <svg id="diagramSvg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+      <svg id="diagramSvg1" class="diagram-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
         <polygon id="tri-AEC" class="tri" points="70,90 250,210 430,90"></polygon>
         <polygon id="tri-DEB" class="tri" points="70,330 250,210 430,330"></polygon>
 
@@ -309,6 +356,38 @@
         <text class="vertex-label" x="440" y="352">B</text>
         <text class="e-label" x="222" y="205" text-anchor="end">E</text>
       </svg>
+      <svg id="diagramSvg2" class="diagram-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+        <polygon id="p2-tri-ABD" class="tri" points="250,60 80,340 250,340"></polygon>
+        <polygon id="p2-tri-ACD" class="tri" points="250,60 420,340 250,340"></polygon>
+
+        <path id="p2-angle-ADB" class="angle-arc" d="M 250,315 A 25,25 0 0,0 225,340"></path>
+        <path id="p2-angle-ADC" class="angle-arc" d="M 250,315 A 25,25 0 0,1 275,340"></path>
+        <path id="p2-rightangle-D" class="right-angle-mark" d="M 250,326 L 262,326 L 262,340"></path>
+
+        <line id="p2-seg-AB" class="seg" x1="250" y1="60" x2="80" y2="340"></line>
+        <line id="p2-seg-AC" class="seg" x1="250" y1="60" x2="420" y2="340"></line>
+        <line id="p2-seg-BD" class="seg" x1="80" y1="340" x2="250" y2="340"></line>
+        <line id="p2-seg-DC" class="seg" x1="250" y1="340" x2="420" y2="340"></line>
+        <line id="p2-seg-AD" class="seg" x1="250" y1="60" x2="250" y2="340"></line>
+
+        <line id="p2-tick-AB" class="tick" x1="158" y1="196" x2="172" y2="204"></line>
+        <line id="p2-tick-AC" class="tick" x1="328" y1="204" x2="342" y2="196"></line>
+
+        <line id="p2-tick-BD-1" class="tick" x1="160" y1="332" x2="160" y2="348"></line>
+        <line id="p2-tick-BD-2" class="tick" x1="170" y1="332" x2="170" y2="348"></line>
+        <line id="p2-tick-DC-1" class="tick" x1="330" y1="332" x2="330" y2="348"></line>
+        <line id="p2-tick-DC-2" class="tick" x1="340" y1="332" x2="340" y2="348"></line>
+
+        <circle class="vertex-dot" cx="250" cy="60" r="4"></circle>
+        <circle class="vertex-dot" cx="80" cy="340" r="4"></circle>
+        <circle class="vertex-dot" cx="420" cy="340" r="4"></circle>
+        <circle class="vertex-dot" cx="250" cy="340" r="4"></circle>
+
+        <text class="vertex-label" x="240" y="45" text-anchor="middle">A</text>
+        <text class="vertex-label" x="55" y="358">B</text>
+        <text class="vertex-label" x="425" y="358">C</text>
+        <text class="e-label" x="250" y="368" text-anchor="middle">D</text>
+      </svg>
     </div>
 
     <div class="proof-card">
@@ -336,12 +415,15 @@ const translations = {
     mainHeading: 'How to Write a Geometric Proof',
     introText: 'A geometric proof is built one logical step at a time: each line is either something you were ' +
                 '<strong>given</strong>, or something that follows from a <strong>rule</strong> you already know. ' +
-                'Work through the example below one line at a time to see how a full proof comes together.',
+                'Work through the examples below one line at a time to see how a full proof comes together.',
     problemHeading: 'The Problem',
     givenLabel: 'Given:',
     givenIntro: 'Segments AB and CD intersect at point E.',
+    p2GivenIntro: 'Triangle ABC is isosceles with AB = AC. D is the midpoint of side BC.',
     proveLabel: 'Prove:',
     proofHeading: 'Proof',
+    tab1Label: 'Example 1: Crossing Segments',
+    tab2Label: 'Example 2: Isosceles Triangle',
     stepCounter: (i, total) => `Step ${i} of ${total}`,
     startHint: 'Click "Next line" to reveal the first step of the proof.',
     nextBtn: 'Next line →',
@@ -351,7 +433,12 @@ const translations = {
     reasonGiven: 'Given',
     reasonVertical: 'Vertical angles — AB and CD intersect at E',
     reasonSAS: 'SAS (Side-Angle-Side): lines 1, 3, 2',
-    reasonCPCT: 'CPCTC — corresponding sides of congruent triangles are equal',
+    reasonCPCT: 'CPCTC — corresponding parts of congruent triangles are equal',
+    reasonMidpoint: 'Definition of midpoint — D is the midpoint of BC',
+    reasonCommonSide: 'Common side — shared by both triangles',
+    reasonSSS: 'SSS (Side-Side-Side): lines 1, 2, 3',
+    reasonLinearPair: 'B, D, C are collinear, so ∠ADB and ∠ADC form a linear pair (sum to 180°); with line 5, each must equal 90°',
+    reasonPerpDefinition: 'Definition of perpendicular lines — they meet at a 90° angle',
     qed: 'Q.E.D.',
     footerText: 'Made to help you master two-column proofs 📐',
     langToggleBtn: 'עברית'
@@ -362,12 +449,15 @@ const translations = {
     mainHeading: 'איך כותבים הוכחה גיאומטרית',
     introText: 'הוכחה גיאומטרית נבנית צעד אחר צעד: כל שורה היא דבר שניתן לנו (<strong>נתון</strong>), ' +
                 'או מסקנה הנובעת מ<strong>כלל</strong> שכבר למדנו. ' +
-                'עברו על הדוגמה הבאה שורה אחר שורה כדי לראות איך בונים הוכחה שלמה.',
+                'עברו על הדוגמאות הבאות שורה אחר שורה כדי לראות איך בונים הוכחה שלמה.',
     problemHeading: 'הבעיה',
     givenLabel: 'נתון:',
     givenIntro: 'הקטעים AB ו-CD נחתכים בנקודה E.',
+    p2GivenIntro: 'המשולש ABC שווה שוקיים כאשר AB = AC. הנקודה D היא אמצע הצלע BC.',
     proveLabel: 'צ"ל:',
     proofHeading: 'הוכחה',
+    tab1Label: 'דוגמה 1: קטעים נחתכים',
+    tab2Label: 'דוגמה 2: משולש שווה שוקיים',
     stepCounter: (i, total) => `שלב ${i} מתוך ${total}`,
     startHint: 'לחצו על "השורה הבאה" כדי לחשוף את השלב הראשון בהוכחה.',
     nextBtn: 'השורה הבאה ←',
@@ -378,6 +468,11 @@ const translations = {
     reasonVertical: 'זוויות קודקודיות — AB ו-CD נחתכים ב-E',
     reasonSAS: 'צלע-זווית-צלע (צ.ז.צ): שורות 1, 3, 2',
     reasonCPCT: 'מח"ש — מתאימות בחופפים שוות',
+    reasonMidpoint: 'הגדרת אמצע קטע — D הוא אמצע הקטע BC',
+    reasonCommonSide: 'צלע משותפת — משותפת לשני המשולשים',
+    reasonSSS: 'צלע-צלע-צלע (צ.צ.צ): שורות 1, 2, 3',
+    reasonLinearPair: 'B, D, C נמצאות על ישר אחד, לכן ∠ADB ו-∠ADC משלימות ל-180°; יחד עם שורה 5, כל אחת שווה ל-90°',
+    reasonPerpDefinition: 'הגדרת ניצבים — הישרים נפגשים בזווית של 90°',
     qed: 'מש"ל',
     footerText: 'נוצר כדי לעזור לכם לשלוט בהוכחות דו-טוריות 📐',
     langToggleBtn: 'English'
@@ -385,26 +480,43 @@ const translations = {
 };
 
 // ---------- Proof step data ----------
-const steps = [
+const problem1Steps = [
   { statement: 'AE = DE', reasonKey: 'reasonGiven', highlight: ['seg-AE', 'seg-ED', 'tick-AE', 'tick-ED'], cls: 'hl-1' },
   { statement: 'CE = BE', reasonKey: 'reasonGiven', highlight: ['seg-CE', 'seg-EB', 'tick-CE-1', 'tick-CE-2', 'tick-EB-1', 'tick-EB-2'], cls: 'hl-2' },
   { statement: '∠AEC = ∠DEB', reasonKey: 'reasonVertical', highlight: ['angle-AEC', 'angle-DEB'], cls: 'hl-3' },
   { statement: 'ΔAEC ≅ ΔDEB', reasonKey: 'reasonSAS', highlight: ['tri-AEC', 'tri-DEB'], cls: 'hl-4', provesGoal: true },
   { statement: 'AC = DB', reasonKey: 'reasonCPCT', highlight: ['seg-AC', 'seg-DB'], cls: 'hl-5', provesGoal: true }
 ];
-const HL_CLASSES = ['hl-1', 'hl-2', 'hl-3', 'hl-4', 'hl-5'];
+
+const problem2Steps = [
+  { statement: 'AB = AC', reasonKey: 'reasonGiven', highlight: ['p2-seg-AB', 'p2-seg-AC', 'p2-tick-AB', 'p2-tick-AC'], cls: 'hl-1' },
+  { statement: 'BD = DC', reasonKey: 'reasonMidpoint', highlight: ['p2-seg-BD', 'p2-seg-DC', 'p2-tick-BD-1', 'p2-tick-BD-2', 'p2-tick-DC-1', 'p2-tick-DC-2'], cls: 'hl-2' },
+  { statement: 'AD = AD', reasonKey: 'reasonCommonSide', highlight: ['p2-seg-AD'], cls: 'hl-3' },
+  { statement: 'ΔABD ≅ ΔACD', reasonKey: 'reasonSSS', highlight: ['p2-tri-ABD', 'p2-tri-ACD'], cls: 'hl-4', provesGoal: true },
+  { statement: '∠ADB = ∠ADC', reasonKey: 'reasonCPCT', highlight: ['p2-angle-ADB', 'p2-angle-ADC'], cls: 'hl-6' },
+  { statement: '∠ADB = ∠ADC = 90°', reasonKey: 'reasonLinearPair', highlight: [], cls: 'hl-6' },
+  { statement: 'AD ⊥ BC', reasonKey: 'reasonPerpDefinition', highlight: ['p2-rightangle-D'], cls: 'hl-5', provesGoal: true }
+];
+
+const problems = [
+  { diagramId: 'diagramSvg1', boxId: 'givenProveBox1', tabId: 'tab1Btn', steps: problem1Steps },
+  { diagramId: 'diagramSvg2', boxId: 'givenProveBox2', tabId: 'tab2Btn', steps: problem2Steps }
+];
+const HL_CLASSES = ['hl-1', 'hl-2', 'hl-3', 'hl-4', 'hl-5', 'hl-6'];
 
 let currentLang = 'en';
+let currentProblem = 0;
 let currentStep = 0;
 
 function clearHighlights() {
-  document.querySelectorAll('#diagramSvg *').forEach(el => {
+  document.querySelectorAll(`#${problems[currentProblem].diagramId} *`).forEach(el => {
     HL_CLASSES.forEach(c => el.classList.remove(c));
   });
 }
 
 function applyHighlightsUpTo(n) {
   clearHighlights();
+  const steps = problems[currentProblem].steps;
   for (let i = 0; i < n; i++) {
     steps[i].highlight.forEach(id => {
       const el = document.getElementById(id);
@@ -415,6 +527,7 @@ function applyHighlightsUpTo(n) {
 
 function renderProof() {
   const t = translations[currentLang];
+  const steps = problems[currentProblem].steps;
   const linesEl = document.getElementById('proofLines');
   linesEl.innerHTML = '';
   for (let i = 0; i < currentStep; i++) {
@@ -435,7 +548,19 @@ function renderProof() {
   applyHighlightsUpTo(currentStep);
 }
 
+function selectProblem(index) {
+  currentProblem = index;
+  currentStep = 0;
+  problems.forEach((p, i) => {
+    document.getElementById(p.diagramId).style.display = i === index ? 'block' : 'none';
+    document.getElementById(p.boxId).style.display = i === index ? 'block' : 'none';
+    document.getElementById(p.tabId).classList.toggle('active', i === index);
+  });
+  renderProof();
+}
+
 document.getElementById('nextBtn').addEventListener('click', () => {
+  const steps = problems[currentProblem].steps;
   if (currentStep < steps.length) { currentStep++; renderProof(); }
 });
 document.getElementById('prevBtn').addEventListener('click', () => {
@@ -444,6 +569,8 @@ document.getElementById('prevBtn').addEventListener('click', () => {
 document.getElementById('restartBtn').addEventListener('click', () => {
   currentStep = 0; renderProof();
 });
+document.getElementById('tab1Btn').addEventListener('click', () => selectProblem(0));
+document.getElementById('tab2Btn').addEventListener('click', () => selectProblem(1));
 
 // ---------- Language switching ----------
 function applyLanguage(lang) {
@@ -458,10 +585,15 @@ function applyLanguage(lang) {
   document.getElementById('mainHeading').textContent = t.mainHeading;
   document.getElementById('introText').innerHTML = t.introText;
   document.getElementById('problemHeading').textContent = t.problemHeading;
-  document.getElementById('givenLabel').textContent = t.givenLabel;
-  document.getElementById('givenIntro').textContent = t.givenIntro;
-  document.getElementById('proveLabel').textContent = t.proveLabel;
+  document.getElementById('givenLabel1').textContent = t.givenLabel;
+  document.getElementById('givenIntro1').textContent = t.givenIntro;
+  document.getElementById('proveLabel1').textContent = t.proveLabel;
+  document.getElementById('givenLabel2').textContent = t.givenLabel;
+  document.getElementById('givenIntro2').textContent = t.p2GivenIntro;
+  document.getElementById('proveLabel2').textContent = t.proveLabel;
   document.getElementById('proofHeading').textContent = t.proofHeading;
+  document.getElementById('tab1Btn').textContent = t.tab1Label;
+  document.getElementById('tab2Btn').textContent = t.tab2Label;
   document.getElementById('nextBtn').innerHTML = t.nextBtn;
   document.getElementById('prevBtn').innerHTML = t.prevBtn;
   document.getElementById('restartBtn').innerHTML = t.restartBtn;
