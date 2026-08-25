@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing a Geometric Proof</title>
+<style>
+  :root {
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --text: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(180deg, #eef4ff, #f4f7fb 300px);
+    color: var(--text);
+    padding: 20px;
+  }
+  a.back-link {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.95em;
+  }
+  a.back-link:hover { text-decoration: underline; }
+
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  header h1 {
+    font-size: 2.2em;
+    margin-bottom: 5px;
+    color: #2563eb;
+  }
+  header p {
+    font-size: 1.15em;
+    color: #4b5563;
+    max-width: 760px;
+    margin: 10px auto;
+  }
+
+  section {
+    max-width: 1100px;
+    margin: 0 auto 40px auto;
+  }
+  section h2 {
+    border-left: 6px solid var(--blue);
+    padding-left: 12px;
+    font-size: 1.4em;
+  }
+  [dir="rtl"] section h2 {
+    border-left: none;
+    border-right: 6px solid var(--blue);
+    padding-left: 0;
+    padding-right: 12px;
+  }
+
+  .given-prove-box {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px 26px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    max-width: 1100px;
+    margin: 0 auto 30px auto;
+  }
+  .given-prove-box .row {
+    display: flex;
+    gap: 10px;
+    margin: 6px 0;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+  .given-prove-box .row-label {
+    font-weight: bold;
+    color: #2563eb;
+    min-width: 70px;
+  }
+  .math { direction: ltr; unicode-bidi: isolate; font-weight: bold; }
+
+  .proof-layout {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  [dir="rtl"] .proof-layout { flex-direction: row-reverse; }
+
+  .diagram-card, .proof-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    flex: 1 1 420px;
+    min-width: 320px;
+  }
+
+  #diagramSvg { width: 100%; height: auto; display: block; direction: ltr; }
+  .seg { stroke: #334155; stroke-width: 2.5; fill: none; }
+  .tick { stroke: #334155; stroke-width: 2; }
+  .tri { fill: none; stroke: none; pointer-events: none; }
+  .angle-arc { fill: none; stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 3,3; }
+  .vertex-dot { fill: #1f2937; }
+  .vertex-label { font-size: 20px; font-weight: bold; fill: #1f2937; }
+  .e-label { font-size: 18px; font-weight: bold; fill: #1f2937; }
+
+  .hl-1 { stroke: var(--blue) !important; stroke-width: 4 !important; stroke-dasharray: none !important; }
+  .hl-2 { stroke: var(--orange) !important; stroke-width: 4 !important; stroke-dasharray: none !important; }
+  .hl-3 { stroke: var(--purple) !important; stroke-width: 3 !important; stroke-dasharray: none !important; }
+  .hl-4 { fill: var(--green) !important; fill-opacity: 0.18; stroke: var(--green) !important; stroke-width: 3 !important; }
+  .hl-5 { stroke: var(--red) !important; stroke-width: 4 !important; }
+
+  .proof-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .proof-controls button {
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  #prevBtn, #restartBtn {
+    background: white;
+    color: var(--blue);
+    border: 2px solid var(--blue);
+  }
+  .proof-controls button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  #stepCounterText {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.9em;
+    margin-bottom: 6px;
+  }
+  #startHint {
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+  }
+  #doneText {
+    display: none;
+    text-align: center;
+    color: #047857;
+    font-weight: bold;
+    background: #ecfdf5;
+    border: 2px solid var(--green);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  #proofLines { min-height: 40px; }
+  .proof-line {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    background: #f8fafc;
+    border-left: 4px solid #cbd5e1;
+  }
+  [dir="rtl"] .proof-line { border-left: none; border-right: 4px solid #cbd5e1; }
+  .proof-line.hl-1 { border-color: var(--blue); background: #eff6ff; }
+  .proof-line.hl-2 { border-color: var(--orange); background: #fffbeb; }
+  .proof-line.hl-3 { border-color: var(--purple); background: #f5f3ff; }
+  .proof-line.hl-4 { border-color: var(--green); background: #ecfdf5; }
+  .proof-line.hl-5 { border-color: var(--red); background: #fef2f2; }
+  .line-num { font-weight: bold; color: #6b7280; }
+  .line-statement { font-weight: bold; direction: ltr; unicode-bidi: isolate; }
+  .line-reason { color: #4b5563; font-size: 0.95em; }
+  .qed-badge {
+    margin-inline-start: auto;
+    font-weight: bold;
+    font-style: italic;
+    color: var(--green);
+  }
+
+  footer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.85em;
+    margin-top: 40px;
+  }
+
+  .lang-switch {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+  }
+  [dir="rtl"] .lang-switch {
+    right: auto;
+    left: 15px;
+  }
+  .lang-switch button {
+    background: white;
+    border: 2px solid var(--blue);
+    color: var(--blue);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.95em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    transition: background 0.2s, color 0.2s;
+  }
+  .lang-switch button:hover {
+    background: var(--blue);
+    color: white;
+  }
+</style>
+</head>
+<body>
+
+<div class="lang-switch">
+  <button id="langToggleBtn" type="button">עברית</button>
+</div>
+
+<a class="back-link" id="backLink" href="index.html">&larr; Back to Math Topics</a>
+
+<header>
+  <h1 id="mainHeading">How to Write a Geometric Proof</h1>
+  <p id="introText">A geometric proof is built one logical step at a time: each line is either something you were
+    <strong>given</strong>, or something that follows from a <strong>rule</strong> you already know.
+    Work through the example below one line at a time to see how a full proof comes together.</p>
+</header>
+
+<section id="section1">
+  <h2 id="problemHeading">The Problem</h2>
+  <div class="given-prove-box">
+    <div class="row">
+      <span class="row-label" id="givenLabel">Given:</span>
+      <span id="givenIntro">Segments AB and CD intersect at point E.</span>
+    </div>
+    <div class="row" dir="ltr">
+      <span class="row-label"></span>
+      <span class="math">AE = DE</span>,
+      <span class="math">CE = BE</span>
+    </div>
+    <div class="row">
+      <span class="row-label" id="proveLabel">Prove:</span>
+      <span class="math">(a) &Delta;AEC &cong; &Delta;DEB</span>
+    </div>
+    <div class="row">
+      <span class="row-label"></span>
+      <span class="math">(b) AC = DB</span>
+    </div>
+  </div>
+</section>
+
+<section id="section2">
+  <h2 id="proofHeading">Proof</h2>
+  <div class="proof-layout">
+    <div class="diagram-card">
+      <svg id="diagramSvg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+        <polygon id="tri-AEC" class="tri" points="70,90 250,210 430,90"></polygon>
+        <polygon id="tri-DEB" class="tri" points="70,330 250,210 430,330"></polygon>
+
+        <path id="angle-AEC" class="angle-arc" d="M 225,193 A 30,30 0 0,1 275,193"></path>
+        <path id="angle-DEB" class="angle-arc" d="M 225,227 A 30,30 0 0,0 275,227"></path>
+
+        <line id="seg-AC" class="seg" x1="70" y1="90" x2="430" y2="90"></line>
+        <line id="seg-DB" class="seg" x1="70" y1="330" x2="430" y2="330"></line>
+        <line id="seg-AE" class="seg" x1="70" y1="90" x2="250" y2="210"></line>
+        <line id="seg-EB" class="seg" x1="250" y1="210" x2="430" y2="330"></line>
+        <line id="seg-CE" class="seg" x1="430" y1="90" x2="250" y2="210"></line>
+        <line id="seg-ED" class="seg" x1="250" y1="210" x2="70" y2="330"></line>
+
+        <line id="tick-AE" class="tick" x1="156" y1="157" x2="164" y2="143"></line>
+        <line id="tick-ED" class="tick" x1="156" y1="263" x2="164" y2="277"></line>
+
+        <line id="tick-CE-1" class="tick" x1="331" y1="146" x2="340" y2="159"></line>
+        <line id="tick-CE-2" class="tick" x1="340" y1="141" x2="349" y2="154"></line>
+        <line id="tick-EB-1" class="tick" x1="331" y1="274" x2="340" y2="261"></line>
+        <line id="tick-EB-2" class="tick" x1="340" y1="280" x2="349" y2="266"></line>
+
+        <circle class="vertex-dot" cx="70" cy="90" r="4"></circle>
+        <circle class="vertex-dot" cx="430" cy="90" r="4"></circle>
+        <circle class="vertex-dot" cx="70" cy="330" r="4"></circle>
+        <circle class="vertex-dot" cx="430" cy="330" r="4"></circle>
+        <circle class="vertex-dot" cx="250" cy="210" r="4"></circle>
+
+        <text class="vertex-label" x="45" y="80">A</text>
+        <text class="vertex-label" x="440" y="80">C</text>
+        <text class="vertex-label" x="45" y="352">D</text>
+        <text class="vertex-label" x="440" y="352">B</text>
+        <text class="e-label" x="222" y="205" text-anchor="end">E</text>
+      </svg>
+    </div>
+
+    <div class="proof-card">
+      <div id="stepCounterText">Step 0 of 5</div>
+      <div id="proofLines"></div>
+      <p id="startHint">Click "Next line" to reveal the first step of the proof.</p>
+      <p id="doneText">&check; Proof complete! Both statements in "Prove" have now been shown.</p>
+      <div class="proof-controls">
+        <button id="prevBtn" type="button">&larr; Previous</button>
+        <button id="nextBtn" type="button">Next line &rarr;</button>
+        <button id="restartBtn" type="button">&#8635; Restart</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="footerText">Made to help you master two-column proofs &#128207;</footer>
+
+<script>
+// ---------- Translations ----------
+const translations = {
+  en: {
+    pageTitle: 'Writing a Geometric Proof',
+    backLink: '← Back to Math Topics',
+    mainHeading: 'How to Write a Geometric Proof',
+    introText: 'A geometric proof is built one logical step at a time: each line is either something you were ' +
+                '<strong>given</strong>, or something that follows from a <strong>rule</strong> you already know. ' +
+                'Work through the example below one line at a time to see how a full proof comes together.',
+    problemHeading: 'The Problem',
+    givenLabel: 'Given:',
+    givenIntro: 'Segments AB and CD intersect at point E.',
+    proveLabel: 'Prove:',
+    proofHeading: 'Proof',
+    stepCounter: (i, total) => `Step ${i} of ${total}`,
+    startHint: 'Click "Next line" to reveal the first step of the proof.',
+    nextBtn: 'Next line →',
+    prevBtn: '← Previous',
+    restartBtn: '↻ Restart',
+    doneText: '✓ Proof complete! Both statements in "Prove" have now been shown.',
+    reasonGiven: 'Given',
+    reasonVertical: 'Vertical angles — AB and CD intersect at E',
+    reasonSAS: 'SAS (Side-Angle-Side): lines 1, 3, 2',
+    reasonCPCT: 'CPCTC — corresponding sides of congruent triangles are equal',
+    qed: 'Q.E.D.',
+    footerText: 'Made to help you master two-column proofs 📐',
+    langToggleBtn: 'עברית'
+  },
+  he: {
+    pageTitle: 'איך כותבים הוכחה גיאומטרית',
+    backLink: '→ חזרה לנושאי מתמטיקה',
+    mainHeading: 'איך כותבים הוכחה גיאומטרית',
+    introText: 'הוכחה גיאומטרית נבנית צעד אחר צעד: כל שורה היא דבר שניתן לנו (<strong>נתון</strong>), ' +
+                'או מסקנה הנובעת מ<strong>כלל</strong> שכבר למדנו. ' +
+                'עברו על הדוגמה הבאה שורה אחר שורה כדי לראות איך בונים הוכחה שלמה.',
+    problemHeading: 'הבעיה',
+    givenLabel: 'נתון:',
+    givenIntro: 'הקטעים AB ו-CD נחתכים בנקודה E.',
+    proveLabel: 'צ"ל:',
+    proofHeading: 'הוכחה',
+    stepCounter: (i, total) => `שלב ${i} מתוך ${total}`,
+    startHint: 'לחצו על "השורה הבאה" כדי לחשוף את השלב הראשון בהוכחה.',
+    nextBtn: 'השורה הבאה ←',
+    prevBtn: '→ הקודם',
+    restartBtn: '↻ התחל מחדש',
+    doneText: '✓ ההוכחה הושלמה! שתי הטענות ב"צ"ל" הוצגו.',
+    reasonGiven: 'נתון',
+    reasonVertical: 'זוויות קודקודיות — AB ו-CD נחתכים ב-E',
+    reasonSAS: 'צלע-זווית-צלע (צ.ז.צ): שורות 1, 3, 2',
+    reasonCPCT: 'מח"ש — מתאימות בחופפים שוות',
+    qed: 'מש"ל',
+    footerText: 'נוצר כדי לעזור לכם לשלוט בהוכחות דו-טוריות 📐',
+    langToggleBtn: 'English'
+  }
+};
+
+// ---------- Proof step data ----------
+const steps = [
+  { statement: 'AE = DE', reasonKey: 'reasonGiven', highlight: ['seg-AE', 'seg-ED', 'tick-AE', 'tick-ED'], cls: 'hl-1' },
+  { statement: 'CE = BE', reasonKey: 'reasonGiven', highlight: ['seg-CE', 'seg-EB', 'tick-CE-1', 'tick-CE-2', 'tick-EB-1', 'tick-EB-2'], cls: 'hl-2' },
+  { statement: '∠AEC = ∠DEB', reasonKey: 'reasonVertical', highlight: ['angle-AEC', 'angle-DEB'], cls: 'hl-3' },
+  { statement: 'ΔAEC ≅ ΔDEB', reasonKey: 'reasonSAS', highlight: ['tri-AEC', 'tri-DEB'], cls: 'hl-4', provesGoal: true },
+  { statement: 'AC = DB', reasonKey: 'reasonCPCT', highlight: ['seg-AC', 'seg-DB'], cls: 'hl-5', provesGoal: true }
+];
+const HL_CLASSES = ['hl-1', 'hl-2', 'hl-3', 'hl-4', 'hl-5'];
+
+let currentLang = 'en';
+let currentStep = 0;
+
+function clearHighlights() {
+  document.querySelectorAll('#diagramSvg *').forEach(el => {
+    HL_CLASSES.forEach(c => el.classList.remove(c));
+  });
+}
+
+function applyHighlightsUpTo(n) {
+  clearHighlights();
+  for (let i = 0; i < n; i++) {
+    steps[i].highlight.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add(steps[i].cls);
+    });
+  }
+}
+
+function renderProof() {
+  const t = translations[currentLang];
+  const linesEl = document.getElementById('proofLines');
+  linesEl.innerHTML = '';
+  for (let i = 0; i < currentStep; i++) {
+    const step = steps[i];
+    const div = document.createElement('div');
+    div.className = 'proof-line ' + step.cls;
+    div.innerHTML = `<span class="line-num">${i + 1}.</span>` +
+                     `<span class="line-statement">${step.statement}</span>` +
+                     `<span class="line-reason">${t[step.reasonKey]}</span>` +
+                     (step.provesGoal ? `<span class="qed-badge">${t.qed}</span>` : '');
+    linesEl.appendChild(div);
+  }
+  document.getElementById('stepCounterText').textContent = t.stepCounter(currentStep, steps.length);
+  document.getElementById('startHint').style.display = currentStep === 0 ? '' : 'none';
+  document.getElementById('doneText').style.display = currentStep === steps.length ? 'block' : 'none';
+  document.getElementById('nextBtn').disabled = currentStep >= steps.length;
+  document.getElementById('prevBtn').disabled = currentStep <= 0;
+  applyHighlightsUpTo(currentStep);
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentStep < steps.length) { currentStep++; renderProof(); }
+});
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (currentStep > 0) { currentStep--; renderProof(); }
+});
+document.getElementById('restartBtn').addEventListener('click', () => {
+  currentStep = 0; renderProof();
+});
+
+// ---------- Language switching ----------
+function applyLanguage(lang) {
+  currentLang = lang;
+  const t = translations[lang];
+
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.title = t.pageTitle;
+
+  document.getElementById('backLink').innerHTML = t.backLink;
+  document.getElementById('mainHeading').textContent = t.mainHeading;
+  document.getElementById('introText').innerHTML = t.introText;
+  document.getElementById('problemHeading').textContent = t.problemHeading;
+  document.getElementById('givenLabel').textContent = t.givenLabel;
+  document.getElementById('givenIntro').textContent = t.givenIntro;
+  document.getElementById('proveLabel').textContent = t.proveLabel;
+  document.getElementById('proofHeading').textContent = t.proofHeading;
+  document.getElementById('nextBtn').innerHTML = t.nextBtn;
+  document.getElementById('prevBtn').innerHTML = t.prevBtn;
+  document.getElementById('restartBtn').innerHTML = t.restartBtn;
+  document.getElementById('startHint').textContent = t.startHint;
+  document.getElementById('doneText').innerHTML = t.doneText;
+  document.getElementById('footerText').innerHTML = t.footerText;
+  document.getElementById('langToggleBtn').textContent = t.langToggleBtn;
+
+  renderProof();
+}
+
+document.getElementById('langToggleBtn').addEventListener('click', () => {
+  applyLanguage(currentLang === 'en' ? 'he' : 'en');
+});
+
+applyLanguage('en');
+</script>
+</body>
+</html>
