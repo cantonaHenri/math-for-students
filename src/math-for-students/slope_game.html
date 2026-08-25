@@ -101,10 +101,15 @@
   .opt-btn.selected { border-color: var(--blue); background: #eef4ff; font-weight: bold; }
   .opt-btn.correct { border-color: var(--green); background: #ecfdf5; font-weight: bold; }
   .opt-btn.wrong { border-color: var(--red); background: #fef2f2; }
+  .opt-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
   .actions {
     text-align: center;
     margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
   button.main-btn {
     background: var(--blue);
@@ -118,6 +123,9 @@
   }
   button.main-btn:hover { background: #2563eb; }
   button.main-btn:disabled { background: #93c5fd; cursor: not-allowed; box-shadow: none; }
+  button.help-btn { background: var(--orange); box-shadow: 0 4px 10px rgba(245,158,11,0.35); }
+  button.help-btn:hover { background: #d97706; }
+  button.help-btn:disabled { background: #fde3ab; cursor: not-allowed; box-shadow: none; }
 
   #feedback {
     text-align: center;
@@ -161,6 +169,7 @@
     <div id="feedback"></div>
 
     <div class="actions">
+      <button class="main-btn help-btn" id="helpBtn">🆘 Help me</button>
       <button class="main-btn" id="checkBtn">Check my guess</button>
       <button class="main-btn" id="nextBtn" style="display:none;">Next line &rarr;</button>
     </div>
@@ -193,6 +202,7 @@
   let pickedM = null, pickedB = null;
   let chart = null;
   let answered = false;
+  let helpUsed = false;
 
   function randChoice(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
@@ -230,6 +240,34 @@
     document.getElementById('checkBtn').disabled = (pickedM === null || pickedB === null);
   }
 
+  function useHelp() {
+    if (answered || helpUsed) return;
+    helpUsed = true;
+
+    // Eliminate the whole sign group that can't contain the correct value —
+    // a 50/50-style hint, never removes the correct answer itself.
+    const mWrongSign = currentM > 0 ? (v) => v < 0 : (v) => v > 0;
+    const bWrongSign = currentB >= 0 ? (v) => v < 0 : (v) => v > 0;
+
+    document.querySelectorAll('#mOptions .opt-btn').forEach(b => {
+      const v = Number(b.textContent);
+      if (mWrongSign(v)) {
+        b.disabled = true;
+        if (pickedM === v) { pickedM = null; b.classList.remove('selected'); }
+      }
+    });
+    document.querySelectorAll('#bOptions .opt-btn').forEach(b => {
+      const v = Number(b.textContent);
+      if (bWrongSign(v)) {
+        b.disabled = true;
+        if (pickedB === v) { pickedB = null; b.classList.remove('selected'); }
+      }
+    });
+
+    updateCheckBtn();
+    document.getElementById('helpBtn').disabled = true;
+  }
+
   function drawLine(m, b) {
     const ctx = document.getElementById('gameChart').getContext('2d');
     const points = [
@@ -254,8 +292,26 @@
         animation: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { type: 'linear', min: X_MIN, max: X_MAX, grid: { color: '#e5e7eb' } },
-          y: { min: Y_MIN, max: Y_MAX, grid: { color: '#e5e7eb' } }
+          x: {
+            type: 'linear', min: X_MIN, max: X_MAX,
+            position: { y: 0 },
+            title: { display: true, text: 'x', align: 'end' },
+            ticks: { z: 1 },
+            grid: {
+              color: (c) => (c.tick && c.tick.value === 0) ? '#1f2937' : '#e5e7eb',
+              lineWidth: (c) => (c.tick && c.tick.value === 0) ? 2.5 : 1
+            }
+          },
+          y: {
+            min: Y_MIN, max: Y_MAX,
+            position: { x: 0 },
+            title: { display: true, text: 'y', align: 'end' },
+            ticks: { z: 1 },
+            grid: {
+              color: (c) => (c.tick && c.tick.value === 0) ? '#1f2937' : '#e5e7eb',
+              lineWidth: (c) => (c.tick && c.tick.value === 0) ? 2.5 : 1
+            }
+          }
         }
       }
     });
@@ -263,6 +319,7 @@
 
   function newRound() {
     answered = false;
+    helpUsed = false;
     pickedM = null;
     pickedB = null;
     currentM = randChoice(M_CHOICES);
@@ -274,6 +331,8 @@
     const fb = document.getElementById('feedback');
     fb.textContent = '';
     fb.className = '';
+    document.getElementById('helpBtn').disabled = false;
+    document.getElementById('helpBtn').style.display = 'inline-block';
     document.getElementById('checkBtn').style.display = 'inline-block';
     document.getElementById('nextBtn').style.display = 'none';
   }
@@ -308,10 +367,12 @@
     document.getElementById('score').textContent = score;
     document.getElementById('streak').textContent = streak;
 
+    document.getElementById('helpBtn').style.display = 'none';
     document.getElementById('checkBtn').style.display = 'none';
     document.getElementById('nextBtn').style.display = 'inline-block';
   }
 
+  document.getElementById('helpBtn').addEventListener('click', useHelp);
   document.getElementById('checkBtn').addEventListener('click', checkAnswer);
   document.getElementById('nextBtn').addEventListener('click', newRound);
 
