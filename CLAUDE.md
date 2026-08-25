@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository overview
 
-This repository contains a single self-contained educational web page, [src/math-for-students/linear_functions.html](src/math-for-students/linear_functions.html), that teaches linear functions (`y = mx + b`). There is no build system, package manager, test suite, or server — it is a static HTML file with inline CSS and JavaScript, plus a single CDN dependency on Chart.js (`chart.js@4.4.4`).
+This repository contains a single self-contained educational web page, [linear_functions.html](linear_functions.html), that teaches linear functions (`y = mx + b`). There is no build system, package manager, test suite, or server — it is a static HTML file with inline CSS and JavaScript, plus a single CDN dependency on Chart.js (`chart.js@4.4.4`).
 
 ## Development workflow
 
 There is no build/lint/test tooling. To work on this file:
 
-- Edit [src/math-for-students/linear_functions.html](src/math-for-students/linear_functions.html) directly.
+- Edit [linear_functions.html](linear_functions.html) directly.
 - Open it directly in a browser to preview changes (double-click the file, or use a simple local server if `file://` CDN/script loading is restricted).
 
 ## Architecture
