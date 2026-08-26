@@ -279,6 +279,8 @@
 <div class="problem-tabs">
   <button id="tab1Btn" class="tab-btn active" type="button">Example 1: Crossing Segments</button>
   <button id="tab2Btn" class="tab-btn" type="button">Example 2: Isosceles Triangle</button>
+  <button id="tab3Btn" class="tab-btn" type="button">Example 3: Parallelogram Diagonals</button>
+  <button id="tab4Btn" class="tab-btn" type="button">Example 4: Right Triangles Sharing a Hypotenuse</button>
 </div>
 
 <section id="section1">
@@ -288,10 +290,9 @@
       <span class="row-label" id="givenLabel1">Given:</span>
       <span id="givenIntro1">Segments AB and CD intersect at point E.</span>
     </div>
-    <div class="row" dir="ltr">
+    <div class="row">
       <span class="row-label"></span>
-      <span class="math">AE = DE</span>,
-      <span class="math">CE = BE</span>
+      <span class="math">AE = DE, CE = BE</span>
     </div>
     <div class="row">
       <span class="row-label" id="proveLabel1">Prove:</span>
@@ -314,6 +315,34 @@
     <div class="row">
       <span class="row-label"></span>
       <span class="math">(b) AD &perp; BC</span>
+    </div>
+  </div>
+  <div class="given-prove-box" id="givenProveBox3" style="display:none;">
+    <div class="row">
+      <span class="row-label" id="givenLabel3">Given:</span>
+      <span id="givenIntro3">AB &parallel; CD and AB = CD. Diagonals AC and BD intersect at point E.</span>
+    </div>
+    <div class="row">
+      <span class="row-label" id="proveLabel3">Prove:</span>
+      <span class="math">(a) &Delta;ABE &cong; &Delta;CDE</span>
+    </div>
+    <div class="row">
+      <span class="row-label"></span>
+      <span class="math">(b) AE = CE, (c) BE = DE</span>
+    </div>
+  </div>
+  <div class="given-prove-box" id="givenProveBox4" style="display:none;">
+    <div class="row">
+      <span class="row-label" id="givenLabel4">Given:</span>
+      <span id="givenIntro4">AC is common to triangles ABC and ADC. AB = AD, and &ang;ABC = &ang;ADC = 90&deg;.</span>
+    </div>
+    <div class="row">
+      <span class="row-label" id="proveLabel4">Prove:</span>
+      <span class="math">(a) &Delta;ABC &cong; &Delta;ADC</span>
+    </div>
+    <div class="row">
+      <span class="row-label"></span>
+      <span class="math">(b) BC = DC, (c) &ang;BAC = &ang;DAC</span>
     </div>
   </div>
 </section>
@@ -388,6 +417,67 @@
         <text class="vertex-label" x="425" y="358">C</text>
         <text class="e-label" x="250" y="368" text-anchor="middle">D</text>
       </svg>
+      <svg id="diagramSvg3" class="diagram-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+        <polygon id="p3-tri-ABE" class="tri" points="120,80 420,80 240,200"></polygon>
+        <polygon id="p3-tri-CDE" class="tri" points="360,320 60,320 240,200"></polygon>
+
+        <path id="p3-angle-ABE" class="angle-arc" d="M 395,80 A 25,25 0 0,1 399.2,93.9"></path>
+        <path id="p3-angle-CDE" class="angle-arc" d="M 85,320 A 25,25 0 0,0 80.8,306.1"></path>
+        <path id="p3-angle-AEB" class="angle-arc" d="M 222.3,182.3 A 25,25 0 0,1 260.8,186.1"></path>
+        <path id="p3-angle-CED" class="angle-arc" d="M 257.7,217.7 A 25,25 0 0,1 219.2,213.9"></path>
+
+        <line id="p3-seg-AB" class="seg" x1="120" y1="80" x2="420" y2="80"></line>
+        <line id="p3-seg-BC" class="seg" x1="420" y1="80" x2="360" y2="320"></line>
+        <line id="p3-seg-CD" class="seg" x1="360" y1="320" x2="60" y2="320"></line>
+        <line id="p3-seg-DA" class="seg" x1="60" y1="320" x2="120" y2="80"></line>
+        <line id="p3-seg-AE" class="seg" x1="120" y1="80" x2="240" y2="200"></line>
+        <line id="p3-seg-EC" class="seg" x1="240" y1="200" x2="360" y2="320"></line>
+        <line id="p3-seg-BE" class="seg" x1="420" y1="80" x2="240" y2="200"></line>
+        <line id="p3-seg-ED" class="seg" x1="240" y1="200" x2="60" y2="320"></line>
+
+        <line id="p3-tick-AB" class="tick" x1="270" y1="72" x2="270" y2="88"></line>
+        <line id="p3-tick-CD" class="tick" x1="210" y1="312" x2="210" y2="328"></line>
+
+        <circle class="vertex-dot" cx="120" cy="80" r="4"></circle>
+        <circle class="vertex-dot" cx="420" cy="80" r="4"></circle>
+        <circle class="vertex-dot" cx="360" cy="320" r="4"></circle>
+        <circle class="vertex-dot" cx="60" cy="320" r="4"></circle>
+        <circle class="vertex-dot" cx="240" cy="200" r="4"></circle>
+
+        <text class="vertex-label" x="100" y="70">A</text>
+        <text class="vertex-label" x="430" y="70">B</text>
+        <text class="vertex-label" x="370" y="345">C</text>
+        <text class="vertex-label" x="35" y="345">D</text>
+        <text class="e-label" x="275" y="205">E</text>
+      </svg>
+      <svg id="diagramSvg4" class="diagram-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+        <polygon id="p4-tri-ABC" class="tri" points="250,60 110,200 250,340"></polygon>
+        <polygon id="p4-tri-ADC" class="tri" points="250,60 390,200 250,340"></polygon>
+
+        <path id="p4-angle-BAC" class="angle-arc" d="M 232.3,77.7 A 25,25 0 0,1 250,85"></path>
+        <path id="p4-angle-DAC" class="angle-arc" d="M 267.7,77.7 A 25,25 0 0,0 250,85"></path>
+        <path id="p4-rightangle-B" class="right-angle-mark" d="M 119.9,190.1 L 129.8,200 L 119.9,209.9"></path>
+        <path id="p4-rightangle-D" class="right-angle-mark" d="M 380.1,190.1 L 370.2,200 L 380.1,209.9"></path>
+
+        <line id="p4-seg-AB" class="seg" x1="250" y1="60" x2="110" y2="200"></line>
+        <line id="p4-seg-BC" class="seg" x1="110" y1="200" x2="250" y2="340"></line>
+        <line id="p4-seg-AD" class="seg" x1="250" y1="60" x2="390" y2="200"></line>
+        <line id="p4-seg-DC" class="seg" x1="390" y1="200" x2="250" y2="340"></line>
+        <line id="p4-seg-AC" class="seg" x1="250" y1="60" x2="250" y2="340"></line>
+
+        <line id="p4-tick-AB" class="tick" x1="174.3" y1="124.3" x2="185.7" y2="135.7"></line>
+        <line id="p4-tick-AD" class="tick" x1="314.3" y1="135.7" x2="325.7" y2="124.3"></line>
+
+        <circle class="vertex-dot" cx="250" cy="60" r="4"></circle>
+        <circle class="vertex-dot" cx="110" cy="200" r="4"></circle>
+        <circle class="vertex-dot" cx="250" cy="340" r="4"></circle>
+        <circle class="vertex-dot" cx="390" cy="200" r="4"></circle>
+
+        <text class="vertex-label" x="240" y="45" text-anchor="middle">A</text>
+        <text class="vertex-label" x="75" y="205">B</text>
+        <text class="vertex-label" x="240" y="368" text-anchor="middle">C</text>
+        <text class="vertex-label" x="400" y="205">D</text>
+      </svg>
     </div>
 
     <div class="proof-card">
@@ -420,10 +510,14 @@ const translations = {
     givenLabel: 'Given:',
     givenIntro: 'Segments AB and CD intersect at point E.',
     p2GivenIntro: 'Triangle ABC is isosceles with AB = AC. D is the midpoint of side BC.',
+    p3GivenIntro: 'AB ∥ CD and AB = CD. Diagonals AC and BD intersect at point E.',
+    p4GivenIntro: 'AC is common to triangles ABC and ADC. AB = AD, and ∠ABC = ∠ADC = 90°.',
     proveLabel: 'Prove:',
     proofHeading: 'Proof',
     tab1Label: 'Example 1: Crossing Segments',
     tab2Label: 'Example 2: Isosceles Triangle',
+    tab3Label: 'Example 3: Parallelogram Diagonals',
+    tab4Label: 'Example 4: Right Triangles Sharing a Hypotenuse',
     stepCounter: (i, total) => `Step ${i} of ${total}`,
     startHint: 'Click "Next line" to reveal the first step of the proof.',
     nextBtn: 'Next line →',
@@ -439,6 +533,10 @@ const translations = {
     reasonSSS: 'SSS (Side-Side-Side): lines 1, 2, 3',
     reasonLinearPair: 'B, D, C are collinear, so ∠ADB and ∠ADC form a linear pair (sum to 180°); with line 5, each must equal 90°',
     reasonPerpDefinition: 'Definition of perpendicular lines — they meet at a 90° angle',
+    reasonAlternateAngles: 'Alternate angles — AB ∥ CD, transversal BD',
+    reasonVerticalDiagonals: 'Vertical angles — diagonals AC and BD intersect at E',
+    reasonAAS: 'AAS (Angle-Angle-Side): lines 2, 3, 1',
+    reasonHL: 'HL (Hypotenuse-Leg): lines 1, 2, 3',
     qed: 'Q.E.D.',
     footerText: 'Made to help you master two-column proofs 📐',
     langToggleBtn: 'עברית'
@@ -454,10 +552,14 @@ const translations = {
     givenLabel: 'נתון:',
     givenIntro: 'הקטעים AB ו-CD נחתכים בנקודה E.',
     p2GivenIntro: 'המשולש ABC שווה שוקיים כאשר AB = AC. הנקודה D היא אמצע הצלע BC.',
+    p3GivenIntro: '⁦AB ∥ CD⁩ ו-⁦AB = CD⁩. האלכסונים ⁦AC⁩ ו-⁦BD⁩ נחתכים בנקודה ⁦E⁩.',
+    p4GivenIntro: '⁦AC⁩ משותף למשולשים ⁦ABC⁩ ו-⁦ADC⁩. ⁦AB = AD⁩, וכן ⁦∠ABC = ∠ADC = 90°⁩.',
     proveLabel: 'צ"ל:',
     proofHeading: 'הוכחה',
     tab1Label: 'דוגמה 1: קטעים נחתכים',
     tab2Label: 'דוגמה 2: משולש שווה שוקיים',
+    tab3Label: 'דוגמה 3: אלכסוני מקבילית',
+    tab4Label: 'דוגמה 4: משולשים ישרי-זווית עם יתר משותף',
     stepCounter: (i, total) => `שלב ${i} מתוך ${total}`,
     startHint: 'לחצו על "השורה הבאה" כדי לחשוף את השלב הראשון בהוכחה.',
     nextBtn: 'השורה הבאה ←',
@@ -467,12 +569,16 @@ const translations = {
     reasonGiven: 'נתון',
     reasonVertical: 'זוויות קודקודיות — AB ו-CD נחתכים ב-E',
     reasonSAS: 'צלע-זווית-צלע (צ.ז.צ): שורות 1, 3, 2',
-    reasonCPCT: 'מח"ש — מתאימות בחופפים שוות',
+    reasonCPCT: 'מתאימות בחופפים שוות',
     reasonMidpoint: 'הגדרת אמצע קטע — D הוא אמצע הקטע BC',
     reasonCommonSide: 'צלע משותפת — משותפת לשני המשולשים',
     reasonSSS: 'צלע-צלע-צלע (צ.צ.צ): שורות 1, 2, 3',
     reasonLinearPair: 'B, D, C נמצאות על ישר אחד, לכן ∠ADB ו-∠ADC משלימות ל-180°; יחד עם שורה 5, כל אחת שווה ל-90°',
     reasonPerpDefinition: 'הגדרת ניצבים — הישרים נפגשים בזווית של 90°',
+    reasonAlternateAngles: 'זוויות מתחלפות — AB ∥ CD, החותך BD',
+    reasonVerticalDiagonals: 'זוויות קודקודיות — האלכסונים AC ו-BD נחתכים ב-E',
+    reasonAAS: 'זווית-זווית-צלע (ז.ז.צ): שורות 2, 3, 1',
+    reasonHL: 'יתר-ניצב (משפט חפיפה למשולש ישר-זווית): שורות 1, 2, 3',
     qed: 'מש"ל',
     footerText: 'נוצר כדי לעזור לכם לשלוט בהוכחות דו-טוריות 📐',
     langToggleBtn: 'English'
@@ -498,9 +604,29 @@ const problem2Steps = [
   { statement: 'AD ⊥ BC', reasonKey: 'reasonPerpDefinition', highlight: ['p2-rightangle-D'], cls: 'hl-5', provesGoal: true }
 ];
 
+const problem3Steps = [
+  { statement: 'AB = CD', reasonKey: 'reasonGiven', highlight: ['p3-seg-AB', 'p3-seg-CD', 'p3-tick-AB', 'p3-tick-CD'], cls: 'hl-1' },
+  { statement: '∠ABE = ∠CDE', reasonKey: 'reasonAlternateAngles', highlight: ['p3-angle-ABE', 'p3-angle-CDE'], cls: 'hl-2' },
+  { statement: '∠AEB = ∠CED', reasonKey: 'reasonVerticalDiagonals', highlight: ['p3-angle-AEB', 'p3-angle-CED'], cls: 'hl-6' },
+  { statement: 'ΔABE ≅ ΔCDE', reasonKey: 'reasonAAS', highlight: ['p3-tri-ABE', 'p3-tri-CDE'], cls: 'hl-4', provesGoal: true },
+  { statement: 'AE = CE', reasonKey: 'reasonCPCT', highlight: ['p3-seg-AE', 'p3-seg-EC'], cls: 'hl-3', provesGoal: true },
+  { statement: 'BE = DE', reasonKey: 'reasonCPCT', highlight: ['p3-seg-BE', 'p3-seg-ED'], cls: 'hl-5', provesGoal: true }
+];
+
+const problem4Steps = [
+  { statement: 'AC = AC', reasonKey: 'reasonCommonSide', highlight: ['p4-seg-AC'], cls: 'hl-3' },
+  { statement: 'AB = AD', reasonKey: 'reasonGiven', highlight: ['p4-seg-AB', 'p4-seg-AD', 'p4-tick-AB', 'p4-tick-AD'], cls: 'hl-1' },
+  { statement: '∠ABC = ∠ADC = 90°', reasonKey: 'reasonGiven', highlight: ['p4-rightangle-B', 'p4-rightangle-D'], cls: 'hl-2' },
+  { statement: 'ΔABC ≅ ΔADC', reasonKey: 'reasonHL', highlight: ['p4-tri-ABC', 'p4-tri-ADC'], cls: 'hl-4', provesGoal: true },
+  { statement: 'BC = DC', reasonKey: 'reasonCPCT', highlight: ['p4-seg-BC', 'p4-seg-DC'], cls: 'hl-5', provesGoal: true },
+  { statement: '∠BAC = ∠DAC', reasonKey: 'reasonCPCT', highlight: ['p4-angle-BAC', 'p4-angle-DAC'], cls: 'hl-6', provesGoal: true }
+];
+
 const problems = [
   { diagramId: 'diagramSvg1', boxId: 'givenProveBox1', tabId: 'tab1Btn', steps: problem1Steps },
-  { diagramId: 'diagramSvg2', boxId: 'givenProveBox2', tabId: 'tab2Btn', steps: problem2Steps }
+  { diagramId: 'diagramSvg2', boxId: 'givenProveBox2', tabId: 'tab2Btn', steps: problem2Steps },
+  { diagramId: 'diagramSvg3', boxId: 'givenProveBox3', tabId: 'tab3Btn', steps: problem3Steps },
+  { diagramId: 'diagramSvg4', boxId: 'givenProveBox4', tabId: 'tab4Btn', steps: problem4Steps }
 ];
 const HL_CLASSES = ['hl-1', 'hl-2', 'hl-3', 'hl-4', 'hl-5', 'hl-6'];
 
@@ -571,6 +697,8 @@ document.getElementById('restartBtn').addEventListener('click', () => {
 });
 document.getElementById('tab1Btn').addEventListener('click', () => selectProblem(0));
 document.getElementById('tab2Btn').addEventListener('click', () => selectProblem(1));
+document.getElementById('tab3Btn').addEventListener('click', () => selectProblem(2));
+document.getElementById('tab4Btn').addEventListener('click', () => selectProblem(3));
 
 // ---------- Language switching ----------
 function applyLanguage(lang) {
@@ -591,9 +719,17 @@ function applyLanguage(lang) {
   document.getElementById('givenLabel2').textContent = t.givenLabel;
   document.getElementById('givenIntro2').textContent = t.p2GivenIntro;
   document.getElementById('proveLabel2').textContent = t.proveLabel;
+  document.getElementById('givenLabel3').textContent = t.givenLabel;
+  document.getElementById('givenIntro3').textContent = t.p3GivenIntro;
+  document.getElementById('proveLabel3').textContent = t.proveLabel;
+  document.getElementById('givenLabel4').textContent = t.givenLabel;
+  document.getElementById('givenIntro4').textContent = t.p4GivenIntro;
+  document.getElementById('proveLabel4').textContent = t.proveLabel;
   document.getElementById('proofHeading').textContent = t.proofHeading;
   document.getElementById('tab1Btn').textContent = t.tab1Label;
   document.getElementById('tab2Btn').textContent = t.tab2Label;
+  document.getElementById('tab3Btn').textContent = t.tab3Label;
+  document.getElementById('tab4Btn').textContent = t.tab4Label;
   document.getElementById('nextBtn').innerHTML = t.nextBtn;
   document.getElementById('prevBtn').innerHTML = t.prevBtn;
   document.getElementById('restartBtn').innerHTML = t.restartBtn;
