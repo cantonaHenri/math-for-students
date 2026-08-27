@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solving Equations Practice</title>
+<style>
+  :root {
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --text: #1f2937;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(180deg, #eef4ff, #f4f7fb 300px);
+    color: var(--text);
+    padding: 20px;
+  }
+  a.back-link {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.95em;
+  }
+  a.back-link:hover { text-decoration: underline; }
+
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  header h1 {
+    font-size: 2.2em;
+    margin-bottom: 5px;
+    color: #2563eb;
+  }
+  header p {
+    font-size: 1.15em;
+    color: #4b5563;
+    max-width: 760px;
+    margin: 10px auto;
+  }
+
+  .math { direction: ltr; unicode-bidi: isolate; font-weight: bold; }
+
+  .problem-tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+  }
+  .tab-btn {
+    background: white;
+    color: #4b5563;
+    border: 2px solid #d1d5db;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+  }
+
+  main {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+
+  #stepCounterText {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.9em;
+    margin-bottom: 6px;
+  }
+  .equation-box {
+    text-align: center;
+    font-size: 1.8em;
+    color: #1e3a8a;
+    padding: 16px 10px 20px;
+  }
+  .instruction {
+    text-align: center;
+    color: #4b5563;
+    margin: 0 0 14px 0;
+  }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .opt-btn {
+    border: 2px solid #d1d5db;
+    background: #fff;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+  }
+  .opt-btn:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .opt-btn.correct { border-color: var(--green); background: #ecfdf5; font-weight: bold; }
+  .opt-btn.wrong { border-color: var(--red); background: #fef2f2; }
+  .opt-btn.eliminated { opacity: 0.4; text-decoration: line-through; }
+  .opt-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .opt-btn.eliminated:disabled { opacity: 0.4; }
+
+  .final-answer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  [dir="rtl"] .final-answer { flex-direction: row-reverse; }
+  .final-answer label { font-weight: bold; color: #1e3a8a; }
+  .final-answer input[type="text"] {
+    direction: ltr;
+    width: 110px;
+    padding: 8px 12px;
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 1.1em;
+    text-align: center;
+  }
+
+  .solved-badge {
+    display: none;
+    text-align: center;
+    color: #047857;
+    font-weight: bold;
+    background: #ecfdf5;
+    border: 2px solid var(--green);
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+  }
+
+  .actions {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  button.main-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 1.05em;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(59,130,246,0.35);
+  }
+  button.main-btn:hover { background: #2563eb; }
+  button.main-btn:disabled { background: #93c5fd; cursor: not-allowed; box-shadow: none; }
+  button.help-btn { background: var(--orange); box-shadow: 0 4px 10px rgba(245,158,11,0.35); }
+  button.help-btn:hover { background: #d97706; }
+  button.help-btn:disabled { background: #fde3ab; cursor: not-allowed; box-shadow: none; }
+  #restartBtn { background: white; color: var(--blue); border: 2px solid var(--blue); box-shadow: none; }
+
+  #feedback {
+    text-align: center;
+    font-size: 1.2em;
+    min-height: 1.5em;
+    margin: 12px 0 4px 0;
+    font-weight: bold;
+  }
+  #feedback.good { color: var(--green); }
+  #feedback.bad { color: var(--red); }
+
+  footer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.85em;
+    margin-top: 40px;
+  }
+
+  .lang-switch {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+  }
+  [dir="rtl"] .lang-switch {
+    right: auto;
+    left: 15px;
+  }
+  .lang-switch button {
+    background: white;
+    border: 2px solid var(--blue);
+    color: var(--blue);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.95em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    transition: background 0.2s, color 0.2s;
+  }
+  .lang-switch button:hover {
+    background: var(--blue);
+    color: white;
+  }
+</style>
+</head>
+<body>
+
+<div class="lang-switch">
+  <button id="langToggleBtn" type="button">עברית</button>
+</div>
+
+<a class="back-link" id="backLink" href="index.html">&larr; Back to Math Topics</a>
+
+<header>
+  <h1 id="mainHeading">Solving Linear Equations, Step by Step</h1>
+  <p id="introText">Every equation can be solved by doing the same operation to both sides until x is alone.
+    Pick the correct next step below, then type the final answer.</p>
+</header>
+
+<div class="problem-tabs">
+  <button id="oneStepTabBtn" class="tab-btn active" type="button">One-Step Equations</button>
+  <button id="twoStepTabBtn" class="tab-btn" type="button">Two-Step Equations</button>
+  <button id="bothSidesTabBtn" class="tab-btn" type="button">Variable on Both Sides</button>
+  <button id="distributionTabBtn" class="tab-btn" type="button">Distribution / Parentheses</button>
+</div>
+
+<main>
+  <div class="card">
+    <div id="stepCounterText"></div>
+    <div id="equationDisplay" class="equation-box math"></div>
+
+    <p id="chooseOpInstruction" class="instruction"></p>
+    <div class="options" id="stepOptions"></div>
+
+    <div class="final-answer" id="finalAnswerArea" style="display:none;">
+      <label id="finalPromptLabel" for="finalAnswerInput"></label>
+      <input type="text" id="finalAnswerInput" class="math" inputmode="numeric" autocomplete="off">
+      <button class="main-btn" id="finalCheckBtn" type="button"></button>
+    </div>
+
+    <div id="solvedBadge" class="solved-badge"></div>
+
+    <div id="feedback"></div>
+
+    <div class="actions">
+      <button class="main-btn help-btn" id="hintBtn" type="button"></button>
+      <button class="main-btn" id="nextStepBtn" type="button" style="display:none;"></button>
+      <button class="main-btn" id="restartBtn" type="button"></button>
+      <button class="main-btn" id="nextProblemBtn" type="button" disabled></button>
+    </div>
+  </div>
+</main>
+
+<footer id="footerText">Practice makes isolating x automatic 🧮</footer>
+
+<script>
+// ---------- Translations ----------
+const translations = {
+  en: {
+    pageTitle: 'Solving Equations Practice',
+    backLink: '← Back to Math Topics',
+    mainHeading: 'Solving Linear Equations, Step by Step',
+    introText: 'Every equation can be solved by doing the same operation to both sides until x is alone. ' +
+                'Pick the correct next step below, then type the final answer.',
+    tabOneStep: 'One-Step Equations',
+    tabTwoStep: 'Two-Step Equations',
+    tabBothSides: 'Variable on Both Sides',
+    tabDistribution: 'Distribution / Parentheses',
+    stepCounter: (i, total) => `Step ${i} of ${total}`,
+    chooseOpInstruction: 'Choose the correct next step to isolate x:',
+    nextStepBtn: 'Next step →',
+    restartBtn: '↻ Restart problem',
+    nextProblemBtn: 'Next problem →',
+    hintBtn: '🆘 Hint',
+    feedbackCorrect: 'Correct!',
+    feedbackWrong: 'Not quite — try again.',
+    feedbackEnterNumber: 'Please enter a number.',
+    finalPromptLabel: 'Now solve it — what is x?',
+    finalCheckBtn: 'Check answer',
+    finalCorrectMsg: (n) => `Correct! x = ${n}`,
+    finalWrongMsg: 'Not quite — check your work and try again.',
+    solvedBadgeText: '✓ Solved!',
+    footerText: 'Practice makes isolating x automatic 🧮',
+    langToggleBtn: 'עברית',
+    opAdd: (v) => `Add ${v} to both sides`,
+    opSub: (v) => `Subtract ${v} from both sides`,
+    opMul: (v) => `Multiply both sides by ${v}`,
+    opDiv: (v) => `Divide both sides by ${v}`,
+    opAddVar: (v) => v === 1 ? 'Add x to both sides' : `Add ${v}x to both sides`,
+    opSubVar: (v) => v === 1 ? 'Subtract x from both sides' : `Subtract ${v}x from both sides`,
+    opDistribute: (v) => `Distribute (multiply out) the ${v}`
+  },
+  he: {
+    pageTitle: 'תרגול פתרון משוואות',
+    backLink: '→ חזרה לנושאי מתמטיקה',
+    mainHeading: 'פותרים משוואות ליניאריות, שלב אחר שלב',
+    introText: 'כל משוואה אפשר לפתור על ידי ביצוע אותה פעולה בשני האגפים, עד ש-x נשאר לבדו. ' +
+                'בחרו את הצעד הנכון הבא, ואז הקלידו את התשובה הסופית.',
+    tabOneStep: 'משוואות חד-שלביות',
+    tabTwoStep: 'משוואות דו-שלביות',
+    tabBothSides: 'נעלם בשני האגפים',
+    tabDistribution: 'פתיחת סוגריים',
+    stepCounter: (i, total) => `שלב ${i} מתוך ${total}`,
+    chooseOpInstruction: 'בחרו את הצעד הנכון הבא כדי לבודד את x:',
+    nextStepBtn: 'השלב הבא ←',
+    restartBtn: '↻ התחילו את התרגיל מחדש',
+    nextProblemBtn: 'התרגיל הבא ←',
+    hintBtn: '🆘 עזרה',
+    feedbackCorrect: 'נכון!',
+    feedbackWrong: 'לא בדיוק — נסו שוב.',
+    feedbackEnterNumber: 'הקלידו מספר.',
+    finalPromptLabel: 'עכשיו פתרו — מה שווה ⁦x⁩?',
+    finalCheckBtn: 'בדקו תשובה',
+    finalCorrectMsg: (n) => `נכון! ⁦x = ${n}⁩`,
+    finalWrongMsg: 'לא בדיוק — בדקו את הפתרון ונסו שוב.',
+    solvedBadgeText: '✓ נפתר!',
+    footerText: 'תרגול הופך את בידוד x לאוטומטי 🧮',
+    langToggleBtn: 'English',
+    opAdd: (v) => `הוסיפו ⁦${v}⁩ לשני האגפים`,
+    opSub: (v) => `החסירו ⁦${v}⁩ משני האגפים`,
+    opMul: (v) => `הכפילו את שני האגפים ב-⁦${v}⁩`,
+    opDiv: (v) => `חלקו את שני האגפים ב-⁦${v}⁩`,
+    opAddVar: (v) => v === 1 ? 'הוסיפו ⁦x⁩ לשני האגפים' : `הוסיפו ⁦${v}x⁩ לשני האגפים`,
+    opSubVar: (v) => v === 1 ? 'החסירו ⁦x⁩ משני האגפים' : `החסירו ⁦${v}x⁩ משני האגפים`,
+    opDistribute: (v) => `פרסו (הכפילו) את הסוגריים ב-⁦${v}⁩`
+  }
+};
+
+// ---------- Problem data ----------
+// Each step: { op: {type, value}, distractors?: [{type, value}, ...], result: '<equation after this op>' }
+// op.type: add | sub | mul | div (plain numeric) | addVar | subVar (multiple of x) | distribute (expand k(...))
+// The last step of every problem always fully isolates x, i.e. its result is "x = <answer>".
+const PROBLEM_SETS = {
+  oneStep: {
+    problems: [
+      { id: 'os-1', initial: 'x + 5 = 12', steps: [
+        { op: { type: 'sub', value: 5 }, result: 'x = 7' }
+      ], answer: 7 },
+      { id: 'os-2', initial: '3x = 21', steps: [
+        { op: { type: 'div', value: 3 }, result: 'x = 7' }
+      ], answer: 7 },
+      { id: 'os-3', initial: 'x / 4 = 6', steps: [
+        { op: { type: 'mul', value: 4 }, result: 'x = 24' }
+      ], answer: 24 }
+    ]
+  },
+  twoStep: {
+    problems: [
+      { id: 'ts-1', initial: '2x + 3 = 11', steps: [
+        { op: { type: 'sub', value: 3 }, result: '2x = 8' },
+        { op: { type: 'div', value: 2 }, result: 'x = 4' }
+      ], answer: 4 },
+      { id: 'ts-2', initial: '3x - 4 = 11', steps: [
+        { op: { type: 'add', value: 4 }, result: '3x = 15' },
+        { op: { type: 'div', value: 3 }, result: 'x = 5' }
+      ], answer: 5 },
+      { id: 'ts-3', initial: 'x / 2 + 3 = 7', steps: [
+        { op: { type: 'sub', value: 3 }, result: 'x / 2 = 4' },
+        { op: { type: 'mul', value: 2 }, result: 'x = 8' }
+      ], answer: 8 }
+    ]
+  },
+  bothSides: {
+    problems: [
+      { id: 'bs-1', initial: '3x + 2 = x + 10', steps: [
+        { op: { type: 'subVar', value: 1 },
+          distractors: [{ type: 'addVar', value: 1 }, { type: 'subVar', value: 3 }, { type: 'sub', value: 2 }],
+          result: '2x + 2 = 10' },
+        { op: { type: 'sub', value: 2 }, result: '2x = 8' },
+        { op: { type: 'div', value: 2 }, result: 'x = 4' }
+      ], answer: 4 },
+      { id: 'bs-2', initial: '5x - 3 = 2x + 9', steps: [
+        { op: { type: 'subVar', value: 2 },
+          distractors: [{ type: 'addVar', value: 2 }, { type: 'subVar', value: 5 }, { type: 'add', value: 3 }],
+          result: '3x - 3 = 9' },
+        { op: { type: 'add', value: 3 }, result: '3x = 12' },
+        { op: { type: 'div', value: 3 }, result: 'x = 4' }
+      ], answer: 4 },
+      { id: 'bs-3', initial: '4x + 1 = x + 13', steps: [
+        { op: { type: 'subVar', value: 1 },
+          distractors: [{ type: 'addVar', value: 1 }, { type: 'subVar', value: 4 }, { type: 'sub', value: 1 }],
+          result: '3x + 1 = 13' },
+        { op: { type: 'sub', value: 1 }, result: '3x = 12' },
+        { op: { type: 'div', value: 3 }, result: 'x = 4' }
+      ], answer: 4 }
+    ]
+  },
+  distribution: {
+    problems: [
+      { id: 'd-1', initial: '2(x + 3) = 14', steps: [
+        { op: { type: 'distribute', value: 2 },
+          distractors: [{ type: 'add', value: 2 }, { type: 'mul', value: 2 }, { type: 'div', value: 2 }],
+          result: '2x + 6 = 14' },
+        { op: { type: 'sub', value: 6 }, result: '2x = 8' },
+        { op: { type: 'div', value: 2 }, result: 'x = 4' }
+      ], answer: 4 },
+      { id: 'd-2', initial: '3(x - 2) = 12', steps: [
+        { op: { type: 'distribute', value: 3 },
+          distractors: [{ type: 'add', value: 3 }, { type: 'mul', value: 3 }, { type: 'div', value: 3 }],
+          result: '3x - 6 = 12' },
+        { op: { type: 'add', value: 6 }, result: '3x = 18' },
+        { op: { type: 'div', value: 3 }, result: 'x = 6' }
+      ], answer: 6 },
+      { id: 'd-3', initial: '2(x + 1) = x + 8', steps: [
+        { op: { type: 'distribute', value: 2 },
+          distractors: [{ type: 'add', value: 2 }, { type: 'mul', value: 2 }, { type: 'subVar', value: 1 }],
+          result: '2x + 2 = x + 8' },
+        { op: { type: 'subVar', value: 1 },
+          distractors: [{ type: 'addVar', value: 1 }, { type: 'subVar', value: 2 }, { type: 'sub', value: 2 }],
+          result: 'x + 2 = 8' },
+        { op: { type: 'sub', value: 2 }, result: 'x = 6' }
+      ], answer: 6 }
+    ]
+  }
+};
+
+const DIFFICULTY_KEYS = ['oneStep', 'twoStep', 'bothSides', 'distribution'];
+const TAB_BTN_IDS = {
+  oneStep: 'oneStepTabBtn',
+  twoStep: 'twoStepTabBtn',
+  bothSides: 'bothSidesTabBtn',
+  distribution: 'distributionTabBtn'
+};
+const TAB_LABEL_KEYS = {
+  oneStep: 'tabOneStep',
+  twoStep: 'tabTwoStep',
+  bothSides: 'tabBothSides',
+  distribution: 'tabDistribution'
+};
+
+let currentLang = 'en';
+let currentDifficulty = 'oneStep';
+let currentProblemIndex = 0;
+let currentStepIndex = 0;
+let stepAnswered = false;
+let hintUsedThisStep = false;
+let currentStepEntries = [];
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function numericDistractors(correctType, value) {
+  return ['add', 'sub', 'mul', 'div']
+    .filter((type) => type !== correctType)
+    .map((type) => ({ type, value }));
+}
+
+function getDistractors(step) {
+  return step.distractors || numericDistractors(step.op.type, step.op.value);
+}
+
+function opLabel(op, t) {
+  switch (op.type) {
+    case 'add': return t.opAdd(op.value);
+    case 'sub': return t.opSub(op.value);
+    case 'mul': return t.opMul(op.value);
+    case 'div': return t.opDiv(op.value);
+    case 'addVar': return t.opAddVar(op.value);
+    case 'subVar': return t.opSubVar(op.value);
+    case 'distribute': return t.opDistribute(op.value);
+  }
+}
+
+function currentProblem() {
+  return PROBLEM_SETS[currentDifficulty].problems[currentProblemIndex];
+}
+
+function currentEquationString() {
+  const problem = currentProblem();
+  return currentStepIndex === 0 ? problem.initial : problem.steps[currentStepIndex - 1].result;
+}
+
+function showFeedback(text, cls) {
+  const el = document.getElementById('feedback');
+  el.textContent = text;
+  el.className = cls;
+}
+
+function clearFeedback() {
+  showFeedback('', '');
+}
+
+function renderEquation() {
+  document.getElementById('equationDisplay').textContent = currentEquationString();
+}
+
+function renderStepCounter() {
+  const t = translations[currentLang];
+  const total = currentProblem().steps.length;
+  const displayIndex = Math.min(currentStepIndex + 1, total);
+  document.getElementById('stepCounterText').textContent = t.stepCounter(displayIndex, total);
+}
+
+function renderStepOptions() {
+  stepAnswered = false;
+  hintUsedThisStep = false;
+  document.getElementById('finalAnswerArea').style.display = 'none';
+  document.getElementById('solvedBadge').style.display = 'none';
+  document.getElementById('chooseOpInstruction').style.display = 'block';
+  document.getElementById('stepOptions').style.display = 'flex';
+  document.getElementById('nextStepBtn').style.display = 'none';
+  document.getElementById('hintBtn').disabled = false;
+
+  const t = translations[currentLang];
+  const step = currentProblem().steps[currentStepIndex];
+  currentStepEntries = shuffleArray([
+    { op: step.op, correct: true },
+    ...getDistractors(step).map((op) => ({ op, correct: false }))
+  ]);
+
+  const container = document.getElementById('stepOptions');
+  container.innerHTML = '';
+  currentStepEntries.forEach((entry) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.type = 'button';
+    btn.textContent = opLabel(entry.op, t);
+    btn.addEventListener('click', () => handleStepPick(entry, btn));
+    container.appendChild(btn);
+  });
+}
+
+function relabelStepOptions() {
+  const t = translations[currentLang];
+  const buttons = document.querySelectorAll('#stepOptions .opt-btn');
+  buttons.forEach((btn, i) => {
+    if (currentStepEntries[i]) btn.textContent = opLabel(currentStepEntries[i].op, t);
+  });
+}
+
+function handleStepPick(entry, btn) {
+  if (stepAnswered) return;
+  const t = translations[currentLang];
+  if (entry.correct) {
+    stepAnswered = true;
+    btn.classList.add('correct');
+    document.querySelectorAll('#stepOptions .opt-btn').forEach((b) => { b.disabled = true; });
+    document.getElementById('hintBtn').disabled = true;
+    showFeedback(t.feedbackCorrect, 'good');
+    document.getElementById('nextStepBtn').style.display = 'inline-block';
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    showFeedback(t.feedbackWrong, 'bad');
+  }
+}
+
+function useStepHint() {
+  if (stepAnswered || hintUsedThisStep) return;
+  hintUsedThisStep = true;
+  const remaining = [...document.querySelectorAll('#stepOptions .opt-btn')]
+    .filter((b) => !b.disabled && !b.classList.contains('correct'));
+  if (remaining.length > 1) {
+    const target = remaining[Math.floor(Math.random() * remaining.length)];
+    target.disabled = true;
+    target.classList.add('eliminated');
+  }
+  document.getElementById('hintBtn').disabled = true;
+}
+
+function renderFinalAnswerUI() {
+  document.getElementById('chooseOpInstruction').style.display = 'none';
+  document.getElementById('stepOptions').style.display = 'none';
+  document.getElementById('nextStepBtn').style.display = 'none';
+  document.getElementById('hintBtn').disabled = true;
+
+  const area = document.getElementById('finalAnswerArea');
+  area.style.display = 'flex';
+  const input = document.getElementById('finalAnswerInput');
+  input.value = '';
+  input.disabled = false;
+  document.getElementById('finalCheckBtn').disabled = false;
+  clearFeedback();
+  input.focus();
+}
+
+function checkFinalAnswer() {
+  const t = translations[currentLang];
+  const raw = document.getElementById('finalAnswerInput').value.trim();
+  const cleaned = raw.replace(/^x\s*=\s*/i, '');
+  const val = Number(cleaned);
+  if (cleaned === '' || Number.isNaN(val)) {
+    showFeedback(t.feedbackEnterNumber, 'bad');
+    return;
+  }
+  const problem = currentProblem();
+  if (val === problem.answer) {
+    showFeedback(t.finalCorrectMsg(problem.answer), 'good');
+    const badge = document.getElementById('solvedBadge');
+    badge.textContent = t.solvedBadgeText;
+    badge.style.display = 'block';
+    document.getElementById('finalCheckBtn').disabled = true;
+    document.getElementById('finalAnswerInput').disabled = true;
+    document.getElementById('nextProblemBtn').disabled = false;
+  } else {
+    showFeedback(t.finalWrongMsg, 'bad');
+  }
+}
+
+function goToNextStep() {
+  currentStepIndex++;
+  renderEquation();
+  renderStepCounter();
+  if (currentStepIndex < currentProblem().steps.length) {
+    renderStepOptions();
+  } else {
+    renderFinalAnswerUI();
+  }
+}
+
+function loadProblem() {
+  currentStepIndex = 0;
+  document.getElementById('solvedBadge').style.display = 'none';
+  document.getElementById('nextProblemBtn').disabled = true;
+  clearFeedback();
+  renderEquation();
+  renderStepCounter();
+  renderStepOptions();
+}
+
+function selectDifficulty(key) {
+  currentDifficulty = key;
+  currentProblemIndex = 0;
+  DIFFICULTY_KEYS.forEach((k) => {
+    document.getElementById(TAB_BTN_IDS[k]).classList.toggle('active', k === key);
+  });
+  loadProblem();
+}
+
+function goToNextProblem() {
+  const list = PROBLEM_SETS[currentDifficulty].problems;
+  currentProblemIndex = (currentProblemIndex + 1) % list.length;
+  loadProblem();
+}
+
+// ---------- Language switching ----------
+function applyLanguage(lang) {
+  currentLang = lang;
+  const t = translations[lang];
+
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.title = t.pageTitle;
+
+  document.getElementById('backLink').innerHTML = t.backLink;
+  document.getElementById('mainHeading').textContent = t.mainHeading;
+  document.getElementById('introText').innerHTML = t.introText;
+  DIFFICULTY_KEYS.forEach((k) => {
+    document.getElementById(TAB_BTN_IDS[k]).textContent = t[TAB_LABEL_KEYS[k]];
+  });
+  document.getElementById('chooseOpInstruction').textContent = t.chooseOpInstruction;
+  document.getElementById('nextStepBtn').innerHTML = t.nextStepBtn;
+  document.getElementById('restartBtn').innerHTML = t.restartBtn;
+  document.getElementById('nextProblemBtn').innerHTML = t.nextProblemBtn;
+  document.getElementById('hintBtn').innerHTML = t.hintBtn;
+  document.getElementById('finalPromptLabel').textContent = t.finalPromptLabel;
+  document.getElementById('finalCheckBtn').textContent = t.finalCheckBtn;
+  if (document.getElementById('solvedBadge').style.display !== 'none') {
+    document.getElementById('solvedBadge').textContent = t.solvedBadgeText;
+  }
+  document.getElementById('footerText').innerHTML = t.footerText;
+  document.getElementById('langToggleBtn').textContent = t.langToggleBtn;
+
+  renderEquation();
+  renderStepCounter();
+  if (currentStepIndex < currentProblem().steps.length) {
+    relabelStepOptions();
+  }
+}
+
+document.getElementById('hintBtn').addEventListener('click', useStepHint);
+document.getElementById('nextStepBtn').addEventListener('click', goToNextStep);
+document.getElementById('restartBtn').addEventListener('click', loadProblem);
+document.getElementById('nextProblemBtn').addEventListener('click', goToNextProblem);
+document.getElementById('finalCheckBtn').addEventListener('click', checkFinalAnswer);
+document.getElementById('finalAnswerInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') checkFinalAnswer();
+});
+DIFFICULTY_KEYS.forEach((k) => {
+  document.getElementById(TAB_BTN_IDS[k]).addEventListener('click', () => selectDifficulty(k));
+});
+document.getElementById('langToggleBtn').addEventListener('click', () => {
+  applyLanguage(currentLang === 'en' ? 'he' : 'en');
+});
+
+selectDifficulty('oneStep');
+applyLanguage('en');
+</script>
+</body>
+</html>

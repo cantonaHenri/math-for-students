@@ -31,3 +31,13 @@ Key invariants to preserve when editing:
 - `X_AXIS_RANGE` / `Y_AXIS_RANGE` are shared fixed bounds so example charts and the interactive chart stay visually comparable regardless of slope — don't let per-chart data auto-scale the axes.
 - Every user-visible string must be added to **both** locales in `translations`, and wired into `applyLanguage` if it's not already covered by an existing chart/table re-render path.
 - RTL support is driven purely by `document.documentElement.dir`; table elements force `dir="ltr"` since coordinate tables should stay left-to-right even in the Hebrew layout.
+
+## equations.html
+
+A bilingual (en/he), 7th-grade equation-solving practice page, following the same single-file/no-build convention as the other pages in this repo.
+
+- `PROBLEM_SETS` — four difficulty categories (`oneStep`/`twoStep`/`bothSides`/`distribution`), each a curated list of problems. Every problem is `{ initial, steps: [{op, distractors?, result}], answer }`; the **last** step in `steps` always fully isolates x (`result` is `"x = <answer>"`).
+- Step flow: `renderStepOptions()` shows shuffled multiple-choice buttons (the correct `op` plus distractors — auto-generated via `numericDistractors()` for plain `add/sub/mul/div` steps, hand-curated in the data for `addVar/subVar/distribute` steps) for the current step. A wrong pick (`handleStepPick`) disables only that button so the student can retry; `useStepHint()` eliminates one remaining wrong option, once per step. After the last step is answered correctly, `renderFinalAnswerUI()` swaps in a free-text "what is x?" input, checked by `checkFinalAnswer()`.
+- `translations` follows the same `en`/`he` + `applyLanguage(lang)` pattern as [triangle_proofs.html](triangle_proofs.html), including function-valued operation-label translators (`opAdd`, `opSubVar`, etc.) since the multiple-choice button text is data-driven from `op.type`/`op.value`. Equation strings themselves aren't translated — they're rendered in a `.math` element to stay LTR under RTL, same as the other pages. Hebrew op-label strings wrap embedded math tokens (numbers, `x`) in Unicode isolate marks (`⁦…⁩`) to avoid the RTL bidi bugs fixed in triangle_proofs.html's given/prove boxes.
+- `applyLanguage` re-renders the equation/step-counter and relabels (not rebuilds) the current step's option buttons via `relabelStepOptions()`, so toggling language mid-problem doesn't reset progress, hints used, or a already-solved final answer.
+- Problems are a fixed curated set (not randomly generated); `goToNextProblem()` cycles through the current difficulty tab's list, wrapping around.
